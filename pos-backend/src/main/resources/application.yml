@@ -1,0 +1,60 @@
+spring:
+  datasource:
+    url: ${DB_URL:${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres?currentSchema=pos_mgmt}}
+    username: ${DB_USER:${SPRING_DATASOURCE_USERNAME:postgres}}
+    password: ${DB_PASS:${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:admin}}}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    create-schemas: true
+    default-schema: pos_mgmt
+    schemas: pos_mgmt,public
+    baseline-on-migrate: true
+    validate-on-migrate: false
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: pos_mgmt
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+
+  web:
+    locale: en
+    locale-resolver: accept-header
+
+jwt:
+  secret: ${JWT_SECRET:PosCashierSecretKey2024VeryLongAndSecureKeyForJWT}
+  expiration: 86400000
+  refresh-expiration: 604800000
+
+server:
+  port: 8082
+  servlet:
+    context-path: /api/v1
+
+logging:
+  level:
+    com.poscashier: INFO
+    org.springframework.security: WARN
+    org.flywaydb: INFO
+    org.hibernate.SQL: WARN

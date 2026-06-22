@@ -1,0 +1,30 @@
+<aside class="sidebar" [class.collapsed]="collapsed">
+  <div class="sidebar-brand">
+    <span class="brand-icon material-icons">point_of_sale</span>
+    <span class="brand-text" *ngIf="!collapsed">{{ 'APP.TITLE' | translate }}</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a
+      *ngFor="let item of visibleItems"
+      [routerLink]="item.route"
+      routerLinkActive="active"
+      [matTooltip]="collapsed ? (item.labelKey | translate) : ''"
+      matTooltipPosition="right"
+      class="nav-item">
+      <span class="material-icons">{{ item.icon }}</span>
+      <span class="nav-label" *ngIf="!collapsed">{{ item.labelKey | translate }}</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer" *ngIf="!collapsed">
+    <div class="user-chip">
+      <span class="user-name">{{ currentUserDisplayName }}</span>
+      <span class="user-role">{{ roleKey | translate }}</span>
+    </div>
+    <button type="button" class="logout-btn" (click)="logout()">
+      <span class="material-icons">logout</span>
+      {{ 'AUTH.LOGOUT' | translate }}
+    </button>
+  </div>
+</aside>

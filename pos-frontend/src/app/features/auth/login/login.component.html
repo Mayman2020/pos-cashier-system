@@ -1,0 +1,30 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="material-icons">point_of_sale</span>
+      <h1>{{ 'APP.TITLE' | translate }}</h1>
+      <p>{{ 'AUTH.SUBTITLE' | translate }}</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'AUTH.USERNAME' | translate }}</mat-label>
+        <input matInput formControlName="username" autocomplete="username" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'AUTH.PASSWORD' | translate }}</mat-label>
+        <input matInput [type]="showPassword ? 'text' : 'password'" formControlName="password" autocomplete="current-password" />
+        <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
+          <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <p class="error" *ngIf="error">{{ error }}</p>
+
+      <button mat-flat-button color="primary" class="login-btn" type="submit" [disabled]="loading || form.invalid">
+        {{ loading ? ('COMMON.LOADING' | translate) : ('AUTH.LOGIN' | translate) }}
+      </button>
+    </form>
+  </div>
+</div>

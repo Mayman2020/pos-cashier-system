@@ -1,0 +1,25 @@
+<div class="app-page">
+  <app-page-header [title]="'DISCOUNTS.TITLE' | translate" [subtitle]="'DISCOUNTS.SUBTITLE' | translate">
+    <button mat-flat-button type="button" (click)="openDialog()">{{ 'DISCOUNTS.ADD' | translate }}</button>
+  </app-page-header>
+
+  <div class="app-card">
+    <div class="app-table-wrap" *ngIf="discounts.length; else empty">
+      <table class="app-data-table">
+        <thead><tr><th>{{ 'DISCOUNTS.CODE' | translate }}</th><th>{{ 'DISCOUNTS.NAME' | translate }}</th><th>{{ 'DISCOUNTS.TYPE' | translate }}</th><th>{{ 'DISCOUNTS.VALUE' | translate }}</th><th>{{ 'COMMON.STATUS' | translate }}</th><th>{{ 'COMMON.ACTIONS' | translate }}</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let d of discounts">
+            <td>{{ d.code }}</td>
+            <td>{{ d.name }}</td>
+            <td>{{ typeLabel(d.discountType) }}</td>
+            <td>{{ d.value }}{{ d.discountType === 'PERCENT' ? '%' : '' }}</td>
+            <td>{{ d.active !== false ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}</td>
+            <td><button mat-stroked-button type="button" (click)="openDialog(d)">{{ 'DISCOUNTS.EDIT' | translate }}</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #empty><app-empty-state *ngIf="!loading"></app-empty-state></ng-template>
+  </div>
+  <app-loading-spinner *ngIf="loading" [contained]="true"></app-loading-spinner>
+</div>

@@ -1,0 +1,48 @@
+import { Component, Inject, OnInit } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { TranslateModule } from '@ngx-translate/core';
+import { Customer, CustomerRequest } from '../../../core/models/customer.model';
+
+@Component({
+  selector: 'app-customer-dialog',
+  standalone: true,
+  imports: [ReactiveFormsModule, TranslateModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatCheckboxModule],
+  template: `
+    <h2 mat-dialog-title>{{ (data ? 'CUSTOMERS.EDIT' : 'CUSTOMERS.CREATE') | translate }}</h2>
+    <mat-dialog-content [formGroup]="form">
+      <mat-form-field appearance="outline" class="full"><mat-label>{{ 'CUSTOMERS.NAME' | translate }}</mat-label><input matInput formControlName="name" /></mat-form-field>
+      <mat-form-field appearance="outline" class="full"><mat-label>{{ 'CUSTOMERS.PHONE' | translate }}</mat-label><input matInput formControlName="phone" /></mat-form-field>
+      <mat-form-field appearance="outline" class="full"><mat-label>{{ 'CUSTOMERS.EMAIL' | translate }}</mat-label><input matInput formControlName="email" /></mat-form-field>
+      <mat-checkbox formControlName="active">{{ 'COMMON.ACTIVE' | translate }}</mat-checkbox>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-stroked-button type="button" (click)="ref.close()">{{ 'ACTIONS.CANCEL' | translate }}</button>
+      <button mat-flat-button type="button" [disabled]="form.invalid" (click)="ref.close(form.getRawValue())">{{ 'ACTIONS.SAVE' | translate }}</button>
+    </mat-dialog-actions>
+  `,
+  styles: [`.full { width: 100%; display: block; }`],
+})
+export class CustomerDialogComponent implements OnInit {
+  readonly form = this.fb.nonNullable.group({
+    name: ['', Validators.required],
+    phone: [''],
+    email: [''],
+    address: [''],
+    active: [true],
+  });
+
+  constructor(
+    private readonly fb: FormBuilder,
+    readonly ref: MatDialogRef<CustomerDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) readonly data: Customer | null
+  ) {}
+
+  ngOnInit(): void {
+    if (this.data) this.form.patchValue({ name: this.data.name, phone: this.data.phone ?? '', email: this.data.email ?? '', address: this.data.address ?? '', active: this.data.active !== false });
+  }
+}

@@ -1,0 +1,23 @@
+<div class="app-page">
+  <app-page-header [title]="'TABLES.TITLE' | translate" [subtitle]="'TABLES.SUBTITLE' | translate">
+    <button mat-flat-button type="button" (click)="openDialog()">{{ 'TABLES.ADD' | translate }}</button>
+  </app-page-header>
+
+  <div class="app-card">
+    <div class="app-table-wrap" *ngIf="tables.length; else empty">
+      <table class="app-data-table">
+        <thead><tr><th>{{ 'TABLES.NUMBER' | translate }}</th><th>{{ 'TABLES.CAPACITY' | translate }}</th><th>{{ 'COMMON.STATUS' | translate }}</th><th>{{ 'COMMON.ACTIONS' | translate }}</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let t of tables">
+            <td>{{ t.tableNumber }}</td>
+            <td>{{ t.capacity }}</td>
+            <td><span class="status-badge" [attr.data-status]="t.status">{{ statusLabel(t.status) }}</span></td>
+            <td><button mat-stroked-button type="button" (click)="openDialog(t)">{{ 'TABLES.EDIT' | translate }}</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #empty><app-empty-state *ngIf="!loading"></app-empty-state></ng-template>
+  </div>
+  <app-loading-spinner *ngIf="loading" [contained]="true"></app-loading-spinner>
+</div>

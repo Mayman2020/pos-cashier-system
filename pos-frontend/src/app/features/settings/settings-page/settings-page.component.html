@@ -1,0 +1,17 @@
+<div class="app-page">
+  <app-page-header [title]="'SETTINGS.TITLE' | translate" [subtitle]="'SETTINGS.SUBTITLE' | translate">
+    <button mat-flat-button type="button" *ngIf="canEdit" (click)="save()">{{ 'ACTIONS.SAVE' | translate }}</button>
+  </app-page-header>
+
+  <div class="app-card" *ngIf="!loading">
+    <div class="app-card-body settings-grid">
+      <div class="setting-row" *ngFor="let key of keys">
+        <label>{{ settingLabel(key) }}</label>
+        <input [(ngModel)]="settings[key]" [readonly]="!canEdit" />
+      </div>
+      <p *ngIf="!keys.length">{{ 'COMMON.NO_DATA' | translate }}</p>
+    </div>
+  </div>
+
+  <app-loading-spinner *ngIf="loading" [contained]="true"></app-loading-spinner>
+</div>

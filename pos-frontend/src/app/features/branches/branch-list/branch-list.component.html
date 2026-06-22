@@ -1,0 +1,36 @@
+<div class="app-page">
+  <app-page-header [title]="'BRANCHES.TITLE' | translate" [subtitle]="'BRANCHES.SUBTITLE' | translate">
+    <button mat-flat-button type="button" (click)="openDialog()">{{ 'BRANCHES.ADD' | translate }}</button>
+  </app-page-header>
+
+  <div class="filters app-card">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>{{ 'COMMON.SEARCH' | translate }}</mat-label>
+      <input matInput [(ngModel)]="search" (keyup.enter)="pageIndex=0; load()" />
+    </mat-form-field>
+    <button mat-stroked-button type="button" (click)="pageIndex=0; load()">{{ 'COMMON.REFRESH' | translate }}</button>
+  </div>
+
+  <div class="app-card">
+    <div class="app-table-wrap" *ngIf="branches.length; else empty">
+      <table class="app-data-table">
+        <thead><tr><th>{{ 'BRANCHES.CODE' | translate }}</th><th>{{ 'BRANCHES.NAME' | translate }}</th><th>{{ 'CUSTOMERS.PHONE' | translate }}</th><th>{{ 'COMMON.STATUS' | translate }}</th><th>{{ 'COMMON.ACTIONS' | translate }}</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let b of branches">
+            <td>{{ b.code }}</td>
+            <td>{{ b.name }}</td>
+            <td>{{ b.phone }}</td>
+            <td>{{ (b.active !== false ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}</td>
+            <td class="actions-cell">
+              <button mat-stroked-button type="button" (click)="openDialog(b)">{{ 'BRANCHES.EDIT' | translate }}</button>
+              <button mat-stroked-button type="button" color="warn" *ngIf="isAdmin" (click)="deleteBranch(b)">{{ 'COMMON.DELETE' | translate }}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <app-table-pager [length]="total" [pageSize]="pageSize" [pageIndex]="pageIndex" (pageIndexChange)="pageIndex=$event; load()"></app-table-pager>
+    </div>
+    <ng-template #empty><app-empty-state *ngIf="!loading"></app-empty-state></ng-template>
+  </div>
+  <app-loading-spinner *ngIf="loading" [contained]="true"></app-loading-spinner>
+</div>

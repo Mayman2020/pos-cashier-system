@@ -1,0 +1,25 @@
+<div class="app-page">
+  <app-page-header [title]="'TAXES.TITLE' | translate" [subtitle]="'TAXES.SUBTITLE' | translate">
+    <button mat-flat-button type="button" (click)="openDialog()">{{ 'TAXES.ADD' | translate }}</button>
+  </app-page-header>
+
+  <div class="app-card">
+    <div class="app-table-wrap" *ngIf="taxes.length; else empty">
+      <table class="app-data-table">
+        <thead><tr><th>{{ 'TAXES.CODE' | translate }}</th><th>{{ 'TAXES.NAME' | translate }}</th><th>{{ 'TAXES.RATE' | translate }}</th><th>{{ 'TAXES.DEFAULT' | translate }}</th><th>{{ 'COMMON.STATUS' | translate }}</th><th>{{ 'COMMON.ACTIONS' | translate }}</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let t of taxes">
+            <td>{{ t.code }}</td>
+            <td>{{ t.name }}</td>
+            <td>{{ t.rate }}%</td>
+            <td>{{ t.defaultTax ? ('COMMON.ACTIVE' | translate) : '—' }}</td>
+            <td>{{ t.active !== false ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}</td>
+            <td><button mat-stroked-button type="button" (click)="openDialog(t)">{{ 'TAXES.EDIT' | translate }}</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #empty><app-empty-state *ngIf="!loading"></app-empty-state></ng-template>
+  </div>
+  <app-loading-spinner *ngIf="loading" [contained]="true"></app-loading-spinner>
+</div>

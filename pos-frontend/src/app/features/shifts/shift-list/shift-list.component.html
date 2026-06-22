@@ -1,0 +1,49 @@
+<div class="app-page">
+  <app-page-header [title]="'SHIFTS.TITLE' | translate" [subtitle]="'SHIFTS.SUBTITLE' | translate">
+    <button mat-flat-button type="button" (click)="showOpenForm = true">{{ 'SHIFTS.OPEN' | translate }}</button>
+  </app-page-header>
+
+  <div class="app-card current-shift-banner" *ngIf="currentOpenShift">
+    <div class="app-card-body">
+      <strong>{{ 'SHIFTS.CURRENT_OPEN' | translate }}</strong>
+      #{{ currentOpenShift.id }} · {{ currentOpenShift.openedAt | date:'short' }} · {{ fmtMoney(currentOpenShift.totalSales) }}
+    </div>
+  </div>
+
+  <div class="app-card form-card" *ngIf="showOpenForm" [formGroup]="openForm">
+    <div class="app-card-body">
+      <mat-form-field appearance="outline"><mat-label>{{ 'SHIFTS.OPENING_CASH' | translate }}</mat-label><input matInput type="number" formControlName="openingCash" /></mat-form-field>
+      <button mat-flat-button type="button" (click)="openShift()">{{ 'SHIFTS.CONFIRM_OPEN' | translate }}</button>
+    </div>
+  </div>
+
+  <div class="app-card form-card" *ngIf="closingShift" [formGroup]="closeForm">
+    <div class="app-card-body">
+      <h3>{{ 'SHIFTS.CLOSE' | translate }} #{{ closingShift.id }}</h3>
+      <mat-form-field appearance="outline"><mat-label>{{ 'SHIFTS.ACTUAL_CASH' | translate }}</mat-label><input matInput type="number" formControlName="actualCash" /></mat-form-field>
+      <mat-form-field appearance="outline" class="full"><mat-label>{{ 'COMMON.NOTES' | translate }}</mat-label><input matInput formControlName="notes" /></mat-form-field>
+      <button mat-flat-button type="button" (click)="closeShift()">{{ 'SHIFTS.CONFIRM_CLOSE' | translate }}</button>
+    </div>
+  </div>
+
+  <div class="app-card">
+    <div class="app-table-wrap" *ngIf="shifts.length">
+      <table class="app-data-table">
+        <thead><tr><th>#</th><th>{{ 'COMMON.STATUS' | translate }}</th><th>{{ 'SHIFTS.OPENED' | translate }}</th><th>{{ 'SHIFTS.TOTAL_SALES' | translate }}</th><th>{{ 'COMMON.ACTIONS' | translate }}</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let s of shifts">
+            <td>{{ s.id }}</td>
+            <td><span class="status-badge" [attr.data-status]="s.status">{{ ('SHIFTS.STATE_' + s.status) | translate }}</span></td>
+            <td>{{ s.openedAt | date:'short' }}</td>
+            <td>{{ fmtMoney(s.totalSales) }}</td>
+            <td>
+              <button mat-stroked-button type="button" *ngIf="s.status === 'OPEN'" (click)="startClose(s)">{{ 'SHIFTS.CLOSE' | translate }}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <app-table-pager [length]="total" [pageSize]="pageSize" [pageIndex]="pageIndex" (pageIndexChange)="pageIndex=$event; load()"></app-table-pager>
+    </div>
+  </div>
+  <app-loading-spinner *ngIf="loading" [contained]="true"></app-loading-spinner>
+</div>

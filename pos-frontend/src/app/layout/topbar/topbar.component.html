@@ -1,0 +1,22 @@
+<header class="topbar">
+  <button mat-icon-button type="button" (click)="sidebarToggle.emit()" [attr.aria-label]="'COMMON.MENU' | translate">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <div class="topbar-title">{{ 'APP.TAGLINE' | translate }}</div>
+
+  <div class="topbar-actions">
+    <button mat-icon-button type="button" (click)="toggleTheme()" [attr.aria-label]="'COMMON.THEME' | translate">
+      <mat-icon>{{ theme.mode() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
+    <button mat-stroked-button type="button" [matMenuTriggerFor]="langMenu">
+      {{ currentLangLabel }}
+    </button>
+    <mat-menu #langMenu="matMenu">
+      <button mat-menu-item type="button" *ngFor="let lang of i18n.languages" (click)="switchLang(lang.code)">
+        {{ lang.nativeLabel }}
+      </button>
+    </mat-menu>
+  </div>
+</header>

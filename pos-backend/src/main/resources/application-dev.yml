@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/postgres?currentSchema=pos_mgmt
+    username: postgres
+    password: admin
+
+logging:
+  level:
+    com.poscashier: DEBUG
+    org.hibernate.SQL: DEBUG

@@ -1,0 +1,37 @@
+<div class="app-page kds-page">
+  <app-page-header [title]="'KITCHEN.TITLE' | translate" [subtitle]="'KITCHEN.SUBTITLE' | translate">
+    <button mat-stroked-button type="button" (click)="load()">{{ 'COMMON.REFRESH' | translate }}</button>
+  </app-page-header>
+
+  <div class="kds-board" *ngIf="!loading; else loadingTpl">
+    <section class="kds-column" *ngFor="let col of columns">
+      <header class="kds-column-head">
+        <span class="material-icons">restaurant</span>
+        {{ ('STATUS.' + col) | translate }}
+        <span class="count">{{ ordersFor(col).length }}</span>
+      </header>
+      <article class="kds-card" *ngFor="let order of ordersFor(col)">
+        <div class="kds-card-head">
+          <strong>#{{ order.orderNumber }}</strong>
+          <span>{{ orderTypeLabel(order.orderType) }}</span>
+        </div>
+        <div class="kds-meta" *ngIf="order.tableId">{{ 'POS.TABLE' | translate }}: {{ order.tableId }}</div>
+        <div class="kds-meta">{{ order.createdAt | date:'short' }}</div>
+        <ul class="kds-items">
+          <li *ngFor="let item of order.items">
+            {{ item.productName }} × {{ item.quantity }}
+            <small *ngIf="item.notes"> — {{ item.notes }}</small>
+          </li>
+        </ul>
+        <button mat-flat-button type="button" class="advance-btn" (click)="advance(order)">
+          {{ actionLabel(col) }}
+        </button>
+      </article>
+      <p class="kds-empty" *ngIf="!ordersFor(col).length">{{ 'COMMON.NO_DATA' | translate }}</p>
+    </section>
+  </div>
+
+  <ng-template #loadingTpl>
+    <app-loading-spinner [contained]="true"></app-loading-spinner>
+  </ng-template>
+</div>
