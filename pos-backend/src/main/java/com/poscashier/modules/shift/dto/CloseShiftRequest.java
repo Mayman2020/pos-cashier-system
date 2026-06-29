@@ -12,4 +12,7 @@ public class CloseShiftRequest {
     private BigDecimal actualCash;
 
     private String notes;
+
+    /** When true, close shift even if cash variance exceeds configured threshold. */
+    private Boolean forceClose;
 }

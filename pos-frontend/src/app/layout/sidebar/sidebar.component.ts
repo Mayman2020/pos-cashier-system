@@ -5,11 +5,15 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { UserRole } from '../../core/models/user.model';
+import { PermissionService } from '../../core/services/permission.service';
+import { NavigationHistoryService } from '../../core/services/navigation-history.service';
 
 interface NavItem {
   icon: string;
+  tone: 'purple' | 'orange' | 'cyan' | 'rose' | 'green' | 'gold' | 'indigo' | 'teal' | 'slate';
   labelKey: string;
   route: string;
+  permissionKey: string;
   roles: UserRole[];
 }
 
@@ -26,31 +30,42 @@ export class SidebarComponent {
   @Output() collapseToggle = new EventEmitter<void>();
 
   readonly navItems: NavItem[] = [
-    { icon: 'point_of_sale', labelKey: 'NAV.POS', route: '/admin/pos', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
-    { icon: 'dashboard', labelKey: 'NAV.DASHBOARD', route: '/admin/dashboard', roles: ['ADMIN', 'MANAGER'] },
-    { icon: 'inventory_2', labelKey: 'NAV.PRODUCTS', route: '/admin/products', roles: ['ADMIN', 'MANAGER'] },
-    { icon: 'category', labelKey: 'NAV.CATEGORIES', route: '/admin/categories', roles: ['ADMIN', 'MANAGER'] },
-    { icon: 'percent', labelKey: 'NAV.TAXES', route: '/admin/taxes', roles: ['ADMIN', 'MANAGER'] },
-    { icon: 'sell', labelKey: 'NAV.DISCOUNTS', route: '/admin/discounts', roles: ['ADMIN', 'MANAGER'] },
-    { icon: 'restaurant', labelKey: 'NAV.KITCHEN', route: '/admin/kitchen', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
-    { icon: 'warehouse', labelKey: 'NAV.INVENTORY', route: '/admin/inventory', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
-    { icon: 'groups', labelKey: 'NAV.CUSTOMERS', route: '/admin/customers', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
-    { icon: 'local_shipping', labelKey: 'NAV.SUPPLIERS', route: '/admin/suppliers', roles: ['ADMIN', 'MANAGER'] },
-    { icon: 'receipt_long', labelKey: 'NAV.ORDERS', route: '/admin/orders', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
-    { icon: 'schedule', labelKey: 'NAV.SHIFTS', route: '/admin/shifts', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
-    { icon: 'bar_chart', labelKey: 'NAV.REPORTS', route: '/admin/reports', roles: ['ADMIN', 'MANAGER'] },
-    { icon: 'table_restaurant', labelKey: 'NAV.TABLES', route: '/admin/tables', roles: ['ADMIN', 'MANAGER'] },
-    { icon: 'store', labelKey: 'NAV.BRANCHES', route: '/admin/branches', roles: ['ADMIN', 'MANAGER'] },
-    { icon: 'manage_accounts', labelKey: 'NAV.USERS', route: '/admin/users', roles: ['ADMIN', 'MANAGER'] },
-    { icon: 'settings', labelKey: 'NAV.SETTINGS', route: '/admin/settings', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'point_of_sale', tone: 'gold', labelKey: 'NAV.POS', route: '/admin/pos', permissionKey: 'pos', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+    { icon: 'dashboard', tone: 'purple', labelKey: 'NAV.DASHBOARD', route: '/admin/dashboard', permissionKey: 'dashboard', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+    { icon: 'inventory_2', tone: 'cyan', labelKey: 'NAV.PRODUCTS', route: '/admin/products', permissionKey: 'products', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'category', tone: 'indigo', labelKey: 'NAV.CATEGORIES', route: '/admin/categories', permissionKey: 'categories', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'straighten', tone: 'teal', labelKey: 'NAV.UNITS', route: '/admin/units', permissionKey: 'units', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'percent', tone: 'orange', labelKey: 'NAV.TAXES', route: '/admin/taxes', permissionKey: 'taxes', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'sell', tone: 'rose', labelKey: 'NAV.DISCOUNTS', route: '/admin/discounts', permissionKey: 'discounts', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'restaurant', tone: 'green', labelKey: 'NAV.KITCHEN', route: '/admin/kitchen', permissionKey: 'kitchen', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+    { icon: 'warehouse', tone: 'slate', labelKey: 'NAV.INVENTORY', route: '/admin/inventory', permissionKey: 'inventory', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+    { icon: 'groups', tone: 'cyan', labelKey: 'NAV.CUSTOMERS', route: '/admin/customers', permissionKey: 'customers', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+    { icon: 'local_shipping', tone: 'orange', labelKey: 'NAV.SUPPLIERS', route: '/admin/suppliers', permissionKey: 'suppliers', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'shopping_cart', tone: 'purple', labelKey: 'NAV.PURCHASE_ORDERS', route: '/admin/purchase-orders', permissionKey: 'purchase_orders', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'receipt_long', tone: 'gold', labelKey: 'NAV.ORDERS', route: '/admin/orders', permissionKey: 'orders', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+    { icon: 'schedule', tone: 'teal', labelKey: 'NAV.SHIFTS', route: '/admin/shifts', permissionKey: 'shifts', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+    { icon: 'bar_chart', tone: 'indigo', labelKey: 'NAV.REPORTS', route: '/admin/reports', permissionKey: 'reports', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'payments', tone: 'rose', labelKey: 'NAV.EXPENSES', route: '/admin/expenses', permissionKey: 'expenses', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'history', tone: 'slate', labelKey: 'NAV.AUDIT', route: '/admin/audit-logs', permissionKey: 'audit', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'table_restaurant', tone: 'green', labelKey: 'NAV.TABLES', route: '/admin/tables', permissionKey: 'tables', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'store', tone: 'orange', labelKey: 'NAV.BRANCHES', route: '/admin/branches', permissionKey: 'branches', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'manage_accounts', tone: 'cyan', labelKey: 'NAV.USERS', route: '/admin/users', permissionKey: 'users', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'admin_panel_settings', tone: 'purple', labelKey: 'NAV.PERMISSIONS', route: '/admin/permissions', permissionKey: 'settings', roles: ['ADMIN'] },
+    { icon: 'list_alt', tone: 'teal', labelKey: 'NAV.LOOKUPS', route: '/admin/lookups', permissionKey: 'settings', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'settings', tone: 'slate', labelKey: 'NAV.SETTINGS', route: '/admin/settings', permissionKey: 'settings', roles: ['ADMIN', 'MANAGER'] },
+    { icon: 'account_circle', tone: 'gold', labelKey: 'NAV.PROFILE', route: '/admin/profile', permissionKey: 'profile', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
   ];
 
-  constructor(readonly auth: AuthService) {}
+  constructor(
+    readonly auth: AuthService,
+    private readonly perms: PermissionService,
+    private readonly navHistory: NavigationHistoryService
+  ) {}
 
   get visibleItems(): NavItem[] {
     const role = this.auth.getRole();
     if (!role) return [];
-    return this.navItems.filter((item) => item.roles.includes(role));
+    return this.navItems.filter((item) => item.roles.includes(role) && this.perms.can(item.permissionKey, 'view'));
   }
 
   get currentUserDisplayName(): string {
@@ -65,5 +80,9 @@ export class SidebarComponent {
 
   logout(): void {
     this.auth.logout();
+  }
+
+  onMenuNav(): void {
+    this.navHistory.markFromMenu();
   }
 }

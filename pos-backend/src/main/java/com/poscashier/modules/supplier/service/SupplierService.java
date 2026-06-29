@@ -19,7 +19,11 @@ public class SupplierService {
 
     @Transactional(readOnly = true)
     public Page<SupplierResponse> list(String q, Pageable pageable) {
-        return supplierRepository.search(q, pageable).map(SupplierResponse::from);
+        String query = q == null ? null : q.trim();
+        if (query == null || query.isEmpty()) {
+            return supplierRepository.findAll(pageable).map(SupplierResponse::from);
+        }
+        return supplierRepository.search(query, pageable).map(SupplierResponse::from);
     }
 
     @Transactional(readOnly = true)

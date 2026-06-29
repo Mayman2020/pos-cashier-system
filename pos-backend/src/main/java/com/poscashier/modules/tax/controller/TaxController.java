@@ -38,4 +38,11 @@ public class TaxController {
             @PathVariable Long id, @Valid @RequestBody TaxRequest request) {
         return ResponseEntity.ok(ApiResponse.ok(taxService.update(id, request)));
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        taxService.delete(id);
+        return ResponseEntity.ok(ApiResponse.ok(null));
+    }
 }

@@ -38,4 +38,11 @@ public class DiscountController {
             @PathVariable Long id, @Valid @RequestBody DiscountRequest request) {
         return ResponseEntity.ok(ApiResponse.ok(discountService.update(id, request)));
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        discountService.delete(id);
+        return ResponseEntity.ok(ApiResponse.ok(null));
+    }
 }

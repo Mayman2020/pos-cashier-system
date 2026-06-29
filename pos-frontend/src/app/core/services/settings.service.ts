@@ -12,6 +12,10 @@ export class SettingsService {
     return this.api.get<SettingsResponse>(AppConstants.API.SETTINGS);
   }
 
+  getPos(): Observable<SettingsResponse> {
+    return this.api.get<SettingsResponse>(AppConstants.API.SETTINGS_POS);
+  }
+
   update(body: SettingsUpdateRequest): Observable<SettingsResponse> {
     return this.api.put<SettingsResponse>(AppConstants.API.SETTINGS, body);
   }

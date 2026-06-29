@@ -19,7 +19,11 @@ public class CustomerService {
 
     @Transactional(readOnly = true)
     public Page<CustomerResponse> list(String q, Pageable pageable) {
-        return customerRepository.search(q, pageable).map(CustomerResponse::from);
+        String query = q == null ? null : q.trim();
+        if (query == null || query.isEmpty()) {
+            return customerRepository.findAll(pageable).map(CustomerResponse::from);
+        }
+        return customerRepository.search(query, pageable).map(CustomerResponse::from);
     }
 
     @Transactional(readOnly = true)

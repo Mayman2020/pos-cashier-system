@@ -1,14 +1,18 @@
-<div class="shell" [class.sidebar-collapsed]="sidebarCollapsed">
+<div class="shell" [class.sidebar-collapsed]="sidebarCollapsed" [class.pos-shell]="isPosRoute">
   <app-sidebar
     [collapsed]="sidebarCollapsed"
     [lang]="lang"
     (collapseToggle)="toggleSidebar()"></app-sidebar>
 
   <div class="shell-main">
-    <app-topbar [sidebarCollapsed]="sidebarCollapsed" (sidebarToggle)="toggleSidebar()"></app-topbar>
-    <main class="shell-content">
+    <app-topbar
+      *ngIf="!isPosRoute"
+      [sidebarCollapsed]="sidebarCollapsed"
+      (sidebarToggle)="toggleSidebar()"></app-topbar>
+    <main class="shell-content" [class.pos-content]="isPosRoute">
       <router-outlet></router-outlet>
-      <app-loading-spinner *ngIf="loading.active() > 0" [contained]="true"></app-loading-spinner>
+      <app-loading-spinner *ngIf="loading.active() > 0 && !isPosRoute" [contained]="true"></app-loading-spinner>
     </main>
+    <app-pos-mobile-bottom-nav></app-pos-mobile-bottom-nav>
   </div>
 </div>

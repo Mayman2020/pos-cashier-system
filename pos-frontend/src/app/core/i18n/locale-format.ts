@@ -1,5 +1,20 @@
 export const ARABIC_LATIN_DIGITS_LANG = 'ar-u-nu-latn';
 
+export const DATE_DISPLAY_OPTIONS: Intl.DateTimeFormatOptions = {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+};
+
+export const DATE_TIME_DISPLAY_OPTIONS: Intl.DateTimeFormatOptions = {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+};
+
 export function toLatinDigits(text: string | number | null | undefined): string {
   if (text === null || text === undefined) return '';
   return String(text)

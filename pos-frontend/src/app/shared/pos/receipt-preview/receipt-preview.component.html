@@ -1,0 +1,26 @@
+<div class="receipt-preview" *ngIf="receipt as r">
+  <header>
+    <h3>{{ 'POS.RECEIPT' | translate }}</h3>
+    <span class="num">{{ r.receiptNumber }}</span>
+  </header>
+  <p class="meta"><strong>{{ 'ORDERS.NUMBER' | translate }}:</strong> {{ r.order.orderNumber }}</p>
+  <p class="meta"><strong>{{ 'COMMON.DATE' | translate }}:</strong> {{ r.printedAt }}</p>
+  <div class="divider"></div>
+  <div class="line" *ngFor="let item of r.order.items">
+    <span>{{ item.productName }} × {{ item.quantity }}</span>
+    <span>{{ formatMoney(Number(item.lineTotal ?? 0)) }}</span>
+  </div>
+  <div class="divider"></div>
+  <div class="line"><span>{{ 'POS.SUBTOTAL' | translate }}</span><span>{{ formatMoney(Number(r.order.subtotal ?? 0)) }}</span></div>
+  <div class="line"><span>{{ 'POS.TAX' | translate }}</span><span>{{ formatMoney(Number(r.order.taxAmount ?? 0)) }}</span></div>
+  <div class="line"><span>{{ 'POS.DISCOUNT' | translate }}</span><span>-{{ formatMoney(Number(r.order.discountAmount ?? 0)) }}</span></div>
+  <div class="line total"><strong>{{ 'POS.TOTAL' | translate }}</strong><strong>{{ formatMoney(Number(r.order.totalAmount ?? 0)) }}</strong></div>
+  <div class="line" *ngFor="let p of r.payments">
+    <span>{{ ('PAYMENT.' + p.paymentMethod) | translate }}</span>
+    <span>{{ formatMoney(Number(p.amount)) }}</span>
+  </div>
+  <footer>
+    <button type="button" class="btn-outline" (click)="print.emit()">{{ 'POS.PRINT' | translate }}</button>
+    <button type="button" class="btn-primary" (click)="printThermal.emit()">{{ 'POS.PRINT_THERMAL' | translate }}</button>
+  </footer>
+</div>

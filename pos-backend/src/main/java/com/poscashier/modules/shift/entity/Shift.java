@@ -65,6 +65,26 @@ public class Shift {
     @Column(name = "total_sales", precision = 14, scale = 2)
     private BigDecimal totalSales = BigDecimal.ZERO;
 
+    @Builder.Default
+    @Column(name = "total_cash_sales", precision = 14, scale = 2)
+    private BigDecimal totalCashSales = BigDecimal.ZERO;
+
+    @Builder.Default
+    @Column(name = "total_card_sales", precision = 14, scale = 2)
+    private BigDecimal totalCardSales = BigDecimal.ZERO;
+
+    @Builder.Default
+    @Column(name = "total_refunds_cash", precision = 14, scale = 2)
+    private BigDecimal totalRefundsCash = BigDecimal.ZERO;
+
+    @Builder.Default
+    @Column(name = "total_refunds_card", precision = 14, scale = 2)
+    private BigDecimal totalRefundsCard = BigDecimal.ZERO;
+
+    @Builder.Default
+    @Column(name = "total_payouts", precision = 14, scale = 2)
+    private BigDecimal totalPayouts = BigDecimal.ZERO;
+
     @Column(length = 500)
     private String notes;
 

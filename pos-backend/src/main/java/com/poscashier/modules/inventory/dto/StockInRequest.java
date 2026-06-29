@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 public class StockInRequest {
@@ -18,6 +19,12 @@ public class StockInRequest {
     @NotNull
     @Positive
     private BigDecimal quantity;
+
+    private Long supplierId;
+
+    private String invoiceNo;
+
+    private LocalDate invoiceDate;
 
     private String notes;
 }

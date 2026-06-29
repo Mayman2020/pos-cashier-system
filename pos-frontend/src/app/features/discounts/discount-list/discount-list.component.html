@@ -14,7 +14,10 @@
             <td>{{ typeLabel(d.discountType) }}</td>
             <td>{{ d.value }}{{ d.discountType === 'PERCENT' ? '%' : '' }}</td>
             <td>{{ d.active !== false ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}</td>
-            <td><button mat-stroked-button type="button" (click)="openDialog(d)">{{ 'DISCOUNTS.EDIT' | translate }}</button></td>
+            <td>
+              <button mat-stroked-button type="button" (click)="openDialog(d)">{{ 'DISCOUNTS.EDIT' | translate }}</button>
+              <button mat-stroked-button type="button" color="warn" (click)="deleteDiscount(d)">{{ 'COMMON.DELETE' | translate }}</button>
+            </td>
           </tr>
         </tbody>
       </table>

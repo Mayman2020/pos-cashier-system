@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import { TableService } from '../../../core/services/table.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { BranchContextService } from '../../../core/services/branch-context.service';
 import { SnackService } from '../../../core/services/snack.service';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { RestaurantTable } from '../../../core/models/table.model';
@@ -19,13 +20,14 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
   imports: [NgIf, NgFor, TranslateModule, MatButtonModule, PageHeaderComponent, EmptyStateComponent, LoadingSpinnerComponent],
   templateUrl: './table-list.component.html',
 })
-export class TableListComponent implements OnInit {
+export class TableListComponent implements OnInit, OnDestroy {
   loading = true;
   tables: RestaurantTable[] = [];
+  private branchSub?: Subscription;
 
   constructor(
     private readonly tableService: TableService,
-    private readonly auth: AuthService,
+    private readonly branchContext: BranchContextService,
     private readonly dialog: MatDialog,
     private readonly snack: SnackService,
     readonly i18n: I18nService
@@ -33,10 +35,15 @@ export class TableListComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+    this.branchSub = this.branchContext.branchChanged$.subscribe(() => this.load());
+  }
+
+  ngOnDestroy(): void {
+    this.branchSub?.unsubscribe();
   }
 
   get branchId(): number {
-    return this.auth.getCurrentUser()?.branchId ?? 1;
+    return this.branchContext.getBranchId();
   }
 
   load(): void {

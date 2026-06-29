@@ -5,13 +5,14 @@
   <div class="app-card">
     <div class="app-table-wrap" *ngIf="customers.length; else empty">
       <table class="app-data-table">
-        <thead><tr><th>{{ 'CUSTOMERS.NAME' | translate }}</th><th>{{ 'CUSTOMERS.PHONE' | translate }}</th><th>{{ 'CUSTOMERS.EMAIL' | translate }}</th><th>{{ 'COMMON.ACTIONS' | translate }}</th></tr></thead>
+        <thead><tr><th>{{ 'CUSTOMERS.NAME' | translate }}</th><th>{{ 'CUSTOMERS.PHONE' | translate }}</th><th>{{ 'LOYALTY.POINTS' | translate }}</th><th>{{ 'COMMON.ACTIONS' | translate }}</th></tr></thead>
         <tbody>
           <tr *ngFor="let c of customers">
-            <td>{{ c.name }}</td><td>{{ c.phone }}</td><td>{{ c.email }}</td>
+            <td>{{ c.name }}</td><td>{{ c.phone }}</td><td>{{ c.loyaltyPoints ?? 0 }}</td>
             <td>
               <button class="app-icon-btn" type="button" (click)="openDialog(c)"><span class="material-icons">edit</span></button>
-              <button class="app-icon-btn danger" type="button" (click)="deleteCustomer(c)"><span class="material-icons">delete</span></button>
+              <button class="app-icon-btn" type="button" (click)="openLoyalty(c)"><span class="material-icons">loyalty</span></button>
+              <button class="app-icon-btn danger" type="button" *ngIf="canDelete" (click)="deleteCustomer(c)"><span class="material-icons">delete</span></button>
             </td>
           </tr>
         </tbody>

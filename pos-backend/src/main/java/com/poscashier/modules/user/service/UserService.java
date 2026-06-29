@@ -1,5 +1,6 @@
 package com.poscashier.modules.user.service;
 
+import com.poscashier.modules.user.dto.ChangePasswordRequest;
 import com.poscashier.modules.user.dto.UserRequest;
 import com.poscashier.modules.user.dto.UserResponse;
 import com.poscashier.modules.user.entity.Role;
@@ -7,6 +8,7 @@ import com.poscashier.modules.user.entity.User;
 import com.poscashier.modules.user.repository.RoleRepository;
 import com.poscashier.modules.user.repository.UserRepository;
 import com.poscashier.shared.exception.AppException;
+import com.poscashier.shared.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 @Service
@@ -33,6 +36,11 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse getById(Long id) {
         return UserResponse.from(findEntity(id));
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponse getCurrentUser() {
+        return UserResponse.from(SecurityUtils.getCurrentUser());
     }
 
     @Transactional
@@ -74,6 +82,7 @@ public class UserService {
         user.setBranchId(request.getBranchId());
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setMustChangePassword(true);
         }
         if (request.getRoles() != null) {
             user.setRoles(resolveRoles(request.getRoles()));
@@ -89,6 +98,24 @@ public class UserService {
         userRepository.delete(findEntity(id));
     }
 
+    @Transactional
+    public UserResponse toggleActive(Long id) {
+        User user = findEntity(id);
+        user.setActive(!user.isActive());
+        return UserResponse.from(userRepository.save(user));
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
+        User user = SecurityUtils.getCurrentUser();
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw AppException.badRequest("Current password is incorrect");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setMustChangePassword(false);
+        userRepository.save(user);
+    }
+
     public User findEntity(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> AppException.notFound("User not found"));
@@ -101,7 +128,7 @@ public class UserService {
             return roles;
         }
         for (String name : roleNames) {
-            Role role = roleRepository.findByName(name)
+            Role role = roleRepository.findByName(name.trim().toUpperCase(Locale.ROOT))
                     .orElseThrow(() -> AppException.badRequest("Role not found: " + name));
             roles.add(role);
         }

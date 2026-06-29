@@ -44,6 +44,10 @@ public class PosOrderItem {
     @Column(precision = 14, scale = 3)
     private BigDecimal quantity = BigDecimal.ONE;
 
+    @Builder.Default
+    @Column(name = "refunded_quantity", precision = 14, scale = 3)
+    private BigDecimal refundedQuantity = BigDecimal.ZERO;
+
     @Column(name = "unit_price", precision = 14, scale = 2)
     private BigDecimal unitPrice;
 

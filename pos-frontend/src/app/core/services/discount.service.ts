@@ -19,4 +19,8 @@ export class DiscountService {
   update(id: number, body: DiscountRequest): Observable<Discount> {
     return this.api.put<Discount>(AppConstants.API.DISCOUNT_BY_ID(id), body);
   }
+
+  delete(id: number): Observable<void> {
+    return this.api.delete<void>(AppConstants.API.DISCOUNT_BY_ID(id));
+  }
 }

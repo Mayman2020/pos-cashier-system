@@ -13,7 +13,18 @@ export interface StockInRequest {
   branchId: number;
   productId: number;
   quantity: number;
+  supplierId?: number;
+  invoiceNo?: string;
+  invoiceDate?: string;
   notes?: string;
+}
+
+export interface StockAvailability {
+  productId: number;
+  branchId: number;
+  available: number;
+  trackStock: boolean;
+  lowStock: boolean;
 }
 
 export interface StockAdjustRequest {

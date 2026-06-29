@@ -6,15 +6,24 @@
   <div class="topbar-title">{{ 'APP.TAGLINE' | translate }}</div>
 
   <div class="topbar-actions">
-    <button mat-icon-button type="button" (click)="toggleTheme()" [attr.aria-label]="'COMMON.THEME' | translate">
+    <mat-form-field appearance="outline" class="branch-select" *ngIf="branchContext.canSwitchBranch() && branches.length">
+      <mat-label>{{ 'NAV.BRANCHES' | translate }}</mat-label>
+      <mat-select [value]="selectedBranchId" (selectionChange)="onBranchChange($event.value)">
+        <mat-option *ngFor="let b of branches" [value]="b.id">{{ b.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button type="button" class="tb-theme-btn" (click)="toggleTheme()" [attr.aria-label]="'COMMON.THEME' | translate">
       <mat-icon>{{ theme.mode() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
     </button>
 
-    <button mat-stroked-button type="button" [matMenuTriggerFor]="langMenu">
-      {{ currentLangLabel }}
+    <button type="button" class="tb-lang-btn" [matMenuTriggerFor]="langMenu">
+      <span class="flag">{{ currentLangFlag }}</span>
+      <span>{{ currentLangLabel }}</span>
     </button>
     <mat-menu #langMenu="matMenu">
       <button mat-menu-item type="button" *ngFor="let lang of i18n.languages" (click)="switchLang(lang.code)">
+        <span class="flag">{{ flagFor(lang.code) }}</span>
         {{ lang.nativeLabel }}
       </button>
     </mat-menu>

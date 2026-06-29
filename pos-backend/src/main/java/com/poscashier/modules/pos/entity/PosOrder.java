@@ -95,4 +95,24 @@ public class PosOrder extends AuditableEntity {
 
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
+
+    @Column(name = "discount_id")
+    private Long discountId;
+
+    @Column(name = "discount_code", length = 30)
+    private String discountCode;
+
+    @Builder.Default
+    @Column(name = "loyalty_points_redeemed")
+    private int loyaltyPointsRedeemed = 0;
+
+    @Builder.Default
+    @Column(name = "loyalty_points_earned")
+    private int loyaltyPointsEarned = 0;
+
+    @Column(name = "refund_reason", length = 500)
+    private String refundReason;
+
+    @Column(name = "refunded_amount", precision = 14, scale = 2)
+    private BigDecimal refundedAmount;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,7 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, Subscription, switchMap } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CategoryService } from '../../../core/services/category.service';
 import { ProductService } from '../../../core/services/product.service';
 import { OrderService } from '../../../core/services/order.service';
@@ -21,6 +22,9 @@ import { TableService } from '../../../core/services/table.service';
 import { ModifierService } from '../../../core/services/modifier.service';
 import { ReceiptService } from '../../../core/services/receipt.service';
 import { DiscountService } from '../../../core/services/discount.service';
+import { BranchContextService } from '../../../core/services/branch-context.service';
+import { InventoryService } from '../../../core/services/inventory.service';
+import { ProductVariantService } from '../../../core/services/product-variant.service';
 import { Category } from '../../../core/models/category.model';
 import { Product } from '../../../core/models/product.model';
 import { Discount } from '../../../core/models/discount.model';
@@ -39,16 +43,19 @@ import { Shift } from '../../../core/models/shift.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ModifierDialogComponent } from '../modifier-dialog/modifier-dialog.component';
+import { VariantPickerDialogComponent } from '../variant-picker-dialog/variant-picker-dialog.component';
+import { CloseShiftDialogComponent } from '../../shifts/close-shift-dialog/close-shift-dialog.component';
 import { ReceiptDialogComponent } from '../receipt-dialog/receipt-dialog.component';
+import { ProductVariant } from '../../../core/models/product-variant.model';
+import { PosCartLine } from '../../../shared/pos/pos-cart.model';
+import { PosProductCardComponent } from '../../../shared/pos/product-card/product-card.component';
+import { PosCategoryTabsComponent } from '../../../shared/pos/category-tabs/category-tabs.component';
+import { PosCartPanelComponent } from '../../../shared/pos/cart-panel/cart-panel.component';
+import { PosQuickActionsBarComponent } from '../../../shared/pos/quick-actions-bar/quick-actions-bar.component';
+import { PosNumericKeypadComponent } from '../../../shared/pos/numeric-keypad/numeric-keypad.component';
+import { PosCheckoutModalComponent } from '../../../shared/pos/checkout-modal/checkout-modal.component';
 
-interface CartLine {
-  product: Product;
-  quantity: number;
-  discountAmount?: number;
-  notes?: string;
-  modifiers: SelectedModifier[];
-  modifiersJson?: string;
-}
+type CartLine = PosCartLine;
 
 @Component({
   selector: 'app-pos-cashier',
@@ -57,13 +64,20 @@ interface CartLine {
     NgIf, NgFor, NgClass, FormsModule, TranslateModule,
     MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     LoadingSpinnerComponent,
+    PosProductCardComponent, PosCategoryTabsComponent, PosCartPanelComponent,
+    PosQuickActionsBarComponent, PosNumericKeypadComponent, PosCheckoutModalComponent,
   ],
   templateUrl: './pos-cashier.component.html',
   styleUrl: './pos-cashier.component.scss',
 })
-export class PosCashierComponent implements OnInit {
+export class PosCashierComponent implements OnInit, OnDestroy {
+  @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
+
   loading = true;
   processing = false;
+  gridView = true;
+  mobileView: 'products' | 'cart' = 'products';
+  keypadValue = 0;
   categories: Category[] = [];
   products: Product[] = [];
   customers: Customer[] = [];
@@ -90,6 +104,14 @@ export class PosCashierComponent implements OnInit {
   openingCash = 200;
   restaurantMode = false;
   supermarketMode = true;
+  taxInclusive = false;
+  allowManualDiscount = true;
+  stockMap = new Map<number, number>();
+  loyaltyRedeem = 0;
+  orderNote = '';
+  keypadTarget: 'discount' | 'payment' = 'discount';
+  private pendingResumeId: number | null = null;
+  private branchSub?: Subscription;
 
   constructor(
     private readonly categoryService: CategoryService,
@@ -102,18 +124,38 @@ export class PosCashierComponent implements OnInit {
     private readonly modifierService: ModifierService,
     private readonly receiptService: ReceiptService,
     private readonly discountService: DiscountService,
+    private readonly branchContext: BranchContextService,
+    private readonly inventoryService: InventoryService,
+    private readonly variantService: ProductVariantService,
     private readonly auth: AuthService,
     private readonly snack: SnackService,
     private readonly dialog: MatDialog,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
     readonly i18n: I18nService
   ) {}
 
   ngOnInit(): void {
     this.loadShift();
-    this.settingsService.get().subscribe({
+    this.branchSub = this.branchContext.branchChanged$.subscribe(() => {
+      this.loadShift();
+      this.loadProducts();
+      this.tableService.list(this.branchId).subscribe({ next: (t) => (this.tables = t) });
+      this.loadHeldOrders();
+    });
+    this.route.queryParams.subscribe((params) => {
+      const resumeId = Number(params['resume']);
+      if (resumeId) {
+        this.pendingResumeId = resumeId;
+        this.tryResumePending();
+      }
+    });
+    this.settingsService.getPos().subscribe({
       next: (s) => {
         this.restaurantMode = s.settings?.['restaurant_mode'] === 'true';
         this.supermarketMode = s.settings?.['supermarket_mode'] === 'true';
+        this.taxInclusive = s.settings?.['tax_inclusive'] === 'true';
+        this.allowManualDiscount = s.settings?.['allow_manual_discount'] !== 'false';
         if (this.restaurantMode && !this.supermarketMode) {
           this.orderType = 'DINE_IN';
         }
@@ -134,8 +176,56 @@ export class PosCashierComponent implements OnInit {
     this.loadHeldOrders();
   }
 
+  ngOnDestroy(): void {
+    this.branchSub?.unsubscribe();
+  }
+
+  lineUnitPrice(line: CartLine): number {
+    const base = Number(line.variant?.sellingPrice ?? line.product.sellingPrice);
+    const modAdj = line.modifiers.reduce((m, x) => m + Number(x.priceAdjustment), 0);
+    return base + modAdj;
+  }
+
   get branchId(): number {
-    return this.auth.getCurrentUser()?.branchId ?? 1;
+    return this.branchContext.getBranchId();
+  }
+
+  get selectedCustomer(): Customer | null {
+    if (!this.customerId) return null;
+    return this.customers.find((c) => c.id === this.customerId) ?? null;
+  }
+
+  onCustomerChange(): void {
+    this.loyaltyRedeem = 0;
+  }
+
+  stockFor(productId: number): number | null {
+    return this.stockMap.has(productId) ? this.stockMap.get(productId)! : null;
+  }
+
+  isOutOfStock(product: Product): boolean {
+    if (product.trackStock === false) return false;
+    const qty = this.stockFor(product.id);
+    return qty !== null && qty <= 0;
+  }
+
+  cartQtyForProduct(productId: number): number {
+    return this.cart
+      .filter((l) => l.product.id === productId)
+      .reduce((sum, l) => sum + l.quantity, 0);
+  }
+
+  wouldExceedStock(product: Product, extraQty = 1, line?: CartLine, newLineQty?: number): boolean {
+    if (product.trackStock === false) return false;
+    const available = this.stockFor(product.id);
+    if (available === null) return false;
+    let needed = this.cartQtyForProduct(product.id);
+    if (line != null && newLineQty != null) {
+      needed = needed - line.quantity + newLineQty;
+    } else {
+      needed += extraQty;
+    }
+    return needed > available;
   }
 
   get filteredProducts(): Product[] {
@@ -160,22 +250,29 @@ export class PosCashierComponent implements OnInit {
   }
 
   get cartSubtotal(): number {
-    return this.cart.reduce((sum, line) => {
-      const modAdj = line.modifiers.reduce((m, x) => m + Number(x.priceAdjustment), 0);
-      return sum + line.quantity * (Number(line.product.sellingPrice) + modAdj);
-    }, 0);
+    return this.cart.reduce((sum, line) => sum + line.quantity * this.lineUnitPrice(line), 0);
   }
 
   get previewTax(): number {
     if (this.currentOrder?.taxAmount != null) {
       return Number(this.currentOrder.taxAmount);
     }
-    return this.cart.reduce((sum, line) => {
-      const modAdj = line.modifiers.reduce((m, x) => m + Number(x.priceAdjustment), 0);
-      const lineSub = line.quantity * (Number(line.product.sellingPrice) + modAdj);
+    const subtotal = this.cartSubtotal;
+    const discount = this.orderDiscount;
+    const net = Math.max(0, subtotal - discount);
+    let tax = this.cart.reduce((sum, line) => {
+      const lineSub = line.quantity * this.lineUnitPrice(line);
       const rate = Number(line.product.taxRate ?? 0);
+      if (rate <= 0) return sum;
+      if (this.taxInclusive) {
+        return sum + (lineSub - lineSub / (1 + rate / 100));
+      }
       return sum + (lineSub * rate) / 100;
     }, 0);
+    if (subtotal > 0 && discount > 0) {
+      tax = Math.round(tax * (net / subtotal) * 100) / 100;
+    }
+    return tax;
   }
 
   get displaySubtotal(): number {
@@ -194,7 +291,16 @@ export class PosCashierComponent implements OnInit {
     if (this.currentOrder?.totalAmount != null) {
       return Number(this.currentOrder.totalAmount);
     }
-    return Math.max(0, this.cartSubtotal - this.orderDiscount + this.previewTax);
+    const net = Math.max(0, this.cartSubtotal - this.orderDiscount);
+    return this.taxInclusive ? net : net + this.previewTax;
+  }
+
+  get canManageProducts(): boolean {
+    return this.auth.isAdmin() || this.auth.isManager();
+  }
+
+  get canManageCustomers(): boolean {
+    return true;
   }
 
   get changeDue(): number {
@@ -240,10 +346,94 @@ export class PosCashierComponent implements OnInit {
     this.currentOrder = null;
   }
 
-  onManualDiscountChange(): void {
+  onManualDiscountChange(value?: number): void {
+    if (value != null) this.orderDiscount = value;
     this.selectedDiscountCode = null;
     this.manualDiscount = true;
     this.currentOrder = null;
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onGlobalKeydown(event: KeyboardEvent): void {
+    const tag = (event.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+      return;
+    }
+    if (this.dialog.openDialogs.length > 0 && !this.showPayment) {
+      return;
+    }
+    if (event.key === 'F9') {
+      event.preventDefault();
+      if (this.showPayment) {
+        this.confirmPayment();
+      } else {
+        this.checkout();
+      }
+    } else if (event.key === 'F8' && !this.showPayment) {
+      event.preventDefault();
+      this.holdOrder();
+    } else if (event.key === 'F4') {
+      event.preventDefault();
+      this.openCashDrawer();
+    } else if (event.key === 'F11') {
+      event.preventDefault();
+      this.toggleFullscreen();
+    }
+  }
+
+  focusSearch(): void {
+    this.searchInput?.nativeElement.focus();
+  }
+
+  toggleFullscreen(): void {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => undefined);
+    } else {
+      document.exitFullscreen().catch(() => undefined);
+    }
+  }
+
+  openCashDrawer(): void {
+    this.snack.success(this.i18n.instant('POS.DRAWER_OPENED'));
+  }
+
+  goNewCustomer(): void {
+    this.router.navigate(['/admin/customers']);
+  }
+
+  goNewProduct(): void {
+    this.router.navigate(['/admin/products']);
+  }
+
+  goRefund(): void {
+    this.router.navigate(['/admin/orders']);
+  }
+
+  onKeypadChange(value: number): void {
+    this.keypadValue = value;
+    if (this.showPayment || this.keypadTarget === 'payment') {
+      this.amountTendered = value;
+    } else if (this.allowManualDiscount) {
+      this.onManualDiscountChange(value);
+    }
+  }
+
+  onKeypadEnter(): void {
+    if (this.showPayment) {
+      this.confirmPayment();
+    } else {
+      this.checkout();
+    }
+  }
+
+  get userName(): string {
+    const u = this.auth.getCurrentUser();
+    return u?.fullName || u?.username || '';
+  }
+
+  get roleKey(): string {
+    const role = this.auth.getRole();
+    return role ? `ROLE.${role}` : '';
   }
 
   addProductClick(product: Product): void {
@@ -251,6 +441,11 @@ export class PosCashierComponent implements OnInit {
   }
 
   changeQty(line: CartLine, delta: number): void {
+    const nextQty = line.quantity + delta;
+    if (delta > 0 && this.wouldExceedStock(line.product, 0, line, nextQty)) {
+      this.snack.error(this.i18n.instant('POS.OUT_OF_STOCK'));
+      return;
+    }
     line.quantity += delta;
     if (line.quantity <= 0) {
       this.cart = this.cart.filter((l) => l !== line);
@@ -265,6 +460,7 @@ export class PosCashierComponent implements OnInit {
     this.orderDiscount = 0;
     this.selectedDiscountCode = null;
     this.manualDiscount = false;
+    this.orderNote = '';
     this.customerId = null;
     this.tableId = null;
   }
@@ -275,6 +471,8 @@ export class PosCashierComponent implements OnInit {
       next: (order) => {
         this.currentOrder = order;
         this.amountTendered = this.displayTotal;
+        this.keypadTarget = 'payment';
+        this.keypadValue = this.displayTotal;
         if (this.paymentMethod === 'MIXED') {
           this.cashAmount = Math.round((this.displayTotal / 2) * 100) / 100;
           this.cardAmount = this.displayTotal - this.cashAmount;
@@ -296,6 +494,10 @@ export class PosCashierComponent implements OnInit {
       cash = this.cashAmount;
       card = this.cardAmount;
       payAmount = cash + card;
+      if (Math.abs(payAmount - total) > 0.01) {
+        this.snack.error(this.i18n.instant('POS.MIXED_MISMATCH'));
+        return;
+      }
     } else if (this.paymentMethod === 'CASH') {
       if (this.amountTendered < total) {
         this.snack.error(this.i18n.instant('POS.INSUFFICIENT_CASH'));
@@ -315,6 +517,7 @@ export class PosCashierComponent implements OnInit {
         next: (order) => {
           this.processing = false;
           this.showPayment = false;
+          this.keypadTarget = 'discount';
           this.receiptService.get(order.id).subscribe({
             next: (receipt) => {
               this.dialog.open(ReceiptDialogComponent, {
@@ -363,6 +566,7 @@ export class PosCashierComponent implements OnInit {
             costPrice: 0,
             sellingPrice: item.unitPrice ?? 0,
           },
+          variantId: item.variantId,
           quantity: Number(item.quantity),
           discountAmount: Number(item.discountAmount ?? 0),
           notes: item.notes,
@@ -413,6 +617,31 @@ export class PosCashierComponent implements OnInit {
     });
   }
 
+  closeShiftNow(): void {
+    if (!this.openShift) return;
+    this.shiftService.getById(this.openShift.id).subscribe({
+      next: (fresh) => {
+        const ref = this.dialog.open(CloseShiftDialogComponent, {
+          panelClass: 'app-dialog-panel',
+          width: '760px',
+          data: { shift: fresh },
+        });
+        ref.afterClosed().subscribe((result) => {
+          if (!result) return;
+          this.shiftService.close(fresh.id, result).subscribe({
+            next: () => {
+              this.openShift = null;
+              this.showShiftPanel = true;
+              this.snack.success(this.i18n.instant('SHIFTS.CLOSED'));
+            },
+            error: (e: Error) => this.snack.errorFrom(e),
+          });
+        });
+      },
+      error: (e: Error) => this.snack.errorFrom(e),
+    });
+  }
+
   fmtMoney(v: number): string {
     return this.i18n.formatCurrency(v);
   }
@@ -441,9 +670,143 @@ export class PosCashierComponent implements OnInit {
     this.productService.list(0, 500).subscribe({
       next: (page) => {
         this.products = page.content;
+        this.products.filter((p) => p.trackStock !== false).forEach((p) => {
+          this.inventoryService.availability(this.branchId, p.id).subscribe({
+            next: (a) => this.stockMap.set(p.id, a.available),
+          });
+        });
         this.loading = false;
+        this.tryResumePending();
       },
       error: () => (this.loading = false),
+    });
+  }
+
+  private promptAddToCart(product: Product): void {
+    if (this.posBlocked) {
+      this.snack.error(this.i18n.instant('POS.SHIFT_REQUIRED'));
+      return;
+    }
+    if (this.isOutOfStock(product)) {
+      this.snack.error(this.i18n.instant('POS.OUT_OF_STOCK'));
+      return;
+    }
+    if (this.wouldExceedStock(product, 1)) {
+      this.snack.error(this.i18n.instant('POS.INSUFFICIENT_STOCK'));
+      return;
+    }
+    this.variantService.list(product.id).subscribe({
+      next: (variants) => {
+        const active = variants.filter((v) => v.active !== false);
+        if (active.length) {
+          this.dialog
+            .open(VariantPickerDialogComponent, {
+              panelClass: 'app-dialog-panel',
+              width: '400px',
+              data: { productName: product.name, variants: active },
+            })
+            .afterClosed()
+            .subscribe((variant: ProductVariant | undefined) => {
+              if (!variant) return;
+              this.continueAddToCart(product, variant);
+            });
+          return;
+        }
+        this.continueAddToCart(product);
+      },
+      error: () => this.continueAddToCart(product),
+    });
+  }
+
+  private continueAddToCart(product: Product, variant?: ProductVariant): void {
+    this.modifierService.list(product.id).subscribe({
+      next: (modifiers) => {
+        const active = modifiers.filter((m) => m.active !== false);
+        if (!active.length) {
+          this.addToCart(product, [], variant);
+          return;
+        }
+        this.dialog
+          .open(ModifierDialogComponent, {
+            panelClass: 'app-dialog-panel',
+            width: '420px',
+            data: { productName: product.name, modifiers: active },
+          })
+          .afterClosed()
+          .subscribe((picked: SelectedModifier[] | undefined) => {
+            if (picked === undefined) return;
+            this.addToCart(product, picked, variant);
+          });
+      },
+      error: () => this.addToCart(product, [], variant),
+    });
+  }
+
+  private addToCart(product: Product, modifiers: SelectedModifier[], variant?: ProductVariant): void {
+    const variantKey = variant ? `v${variant.id}` : '';
+    const key = `${product.id}-${variantKey}-${modifiers.map((m) => m.id).join(',')}`;
+    const existing = this.cart.find(
+      (l) => `${l.product.id}-${l.variantId ? `v${l.variantId}` : ''}-${l.modifiers.map((m) => m.id).join(',')}` === key
+    );
+    if (existing) {
+      if (this.wouldExceedStock(product, 0, existing, existing.quantity + 1)) {
+        this.snack.error(this.i18n.instant('POS.INSUFFICIENT_STOCK'));
+        return;
+      }
+      existing.quantity += 1;
+    } else {
+      this.cart.push({
+        product,
+        variantId: variant?.id,
+        variant,
+        quantity: 1,
+        modifiers,
+        modifiersJson: modifiers.length ? JSON.stringify(modifiers) : undefined,
+      });
+    }
+    this.recalculateCatalogDiscount();
+    this.currentOrder = null;
+  }
+
+  private buildItems(): OrderItemRequest[] {
+    return this.cart.map((l) => ({
+      productId: l.product.id,
+      variantId: l.variantId,
+      quantity: l.quantity,
+      discountAmount: l.discountAmount,
+      notes: l.notes,
+      modifiersJson: l.modifiersJson,
+    }));
+  }
+
+  private syncOrder(): Observable<PosOrder> {
+    const payload: UpdateOrderRequest = {
+      customerId: this.customerId ?? undefined,
+      tableId: this.orderType === 'DINE_IN' ? this.tableId ?? undefined : undefined,
+      orderType: this.orderType,
+      discountAmount: this.manualDiscount ? this.orderDiscount || undefined : undefined,
+      discountCode: this.selectedDiscountCode ?? undefined,
+      loyaltyPointsRedeemed: this.loyaltyRedeem || undefined,
+      notes: this.orderNote || undefined,
+      orderNotes: this.orderNote.trim()
+        ? [{ note: this.orderNote.trim() }]
+        : undefined,
+      items: this.buildItems(),
+    };
+    if (this.currentOrder?.id) {
+      return this.orderService.update(this.currentOrder.id, payload);
+    }
+    const createPayload: CreateOrderRequest = { branchId: this.branchId, ...payload };
+    return this.orderService.create(createPayload);
+  }
+
+  private tryResumePending(): void {
+    if (!this.pendingResumeId || !this.products.length) return;
+    const id = this.pendingResumeId;
+    this.pendingResumeId = null;
+    this.orderService.getById(id).subscribe({
+      next: (o) => this.resumeOrder(o),
+      error: (e: Error) => this.snack.errorFrom(e),
     });
   }
 
@@ -467,77 +830,5 @@ export class PosCashierComponent implements OnInit {
     if (this.selectedDiscountCode) {
       this.applyCatalogDiscount(this.selectedDiscountCode);
     }
-  }
-
-  private promptAddToCart(product: Product): void {
-    if (this.posBlocked) {
-      this.snack.error(this.i18n.instant('POS.SHIFT_REQUIRED'));
-      return;
-    }
-    this.modifierService.list(product.id).subscribe({
-      next: (modifiers) => {
-        const active = modifiers.filter((m) => m.active !== false);
-        if (!active.length) {
-          this.addToCart(product, []);
-          return;
-        }
-        this.dialog
-          .open(ModifierDialogComponent, {
-            panelClass: 'app-dialog-panel',
-            width: '420px',
-            data: { productName: product.name, modifiers: active },
-          })
-          .afterClosed()
-          .subscribe((picked: SelectedModifier[] | undefined) => {
-            if (picked === undefined) return;
-            this.addToCart(product, picked);
-          });
-      },
-      error: () => this.addToCart(product, []),
-    });
-  }
-
-  private addToCart(product: Product, modifiers: SelectedModifier[]): void {
-    const key = `${product.id}-${modifiers.map((m) => m.id).join(',')}`;
-    const existing = this.cart.find(
-      (l) => `${l.product.id}-${l.modifiers.map((m) => m.id).join(',')}` === key
-    );
-    if (existing) {
-      existing.quantity += 1;
-    } else {
-      this.cart.push({
-        product,
-        quantity: 1,
-        modifiers,
-        modifiersJson: modifiers.length ? JSON.stringify(modifiers) : undefined,
-      });
-    }
-    this.recalculateCatalogDiscount();
-    this.currentOrder = null;
-  }
-
-  private buildItems(): OrderItemRequest[] {
-    return this.cart.map((l) => ({
-      productId: l.product.id,
-      quantity: l.quantity,
-      discountAmount: l.discountAmount,
-      notes: l.notes,
-      modifiersJson: l.modifiersJson,
-    }));
-  }
-
-  private syncOrder(): Observable<PosOrder> {
-    const payload: UpdateOrderRequest = {
-      customerId: this.customerId ?? undefined,
-      tableId: this.orderType === 'DINE_IN' ? this.tableId ?? undefined : undefined,
-      orderType: this.orderType,
-      discountAmount: this.orderDiscount || undefined,
-      items: this.buildItems(),
-    };
-    if (this.currentOrder?.id) {
-      return this.orderService.update(this.currentOrder.id, payload);
-    }
-    const createPayload: CreateOrderRequest = { branchId: this.branchId, ...payload };
-    return this.orderService.create(createPayload);
   }
 }

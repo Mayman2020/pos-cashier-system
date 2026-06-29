@@ -19,7 +19,11 @@ public class BranchService {
 
     @Transactional(readOnly = true)
     public Page<BranchResponse> list(String q, Pageable pageable) {
-        return branchRepository.search(q, pageable).map(BranchResponse::from);
+        String query = q == null ? null : q.trim();
+        if (query == null || query.isEmpty()) {
+            return branchRepository.findAll(pageable).map(BranchResponse::from);
+        }
+        return branchRepository.search(query, pageable).map(BranchResponse::from);
     }
 
     @Transactional(readOnly = true)

@@ -9,6 +9,7 @@ import {
   StockInRequest,
   StockMovement,
   StockTransferRequest,
+  StockAvailability,
 } from '../models/inventory.model';
 
 @Injectable({ providedIn: 'root' })
@@ -37,5 +38,9 @@ export class InventoryService {
 
   transfer(body: StockTransferRequest): Observable<StockMovement> {
     return this.api.post<StockMovement>(AppConstants.API.INVENTORY_TRANSFER, body);
+  }
+
+  availability(branchId: number, productId: number): Observable<StockAvailability> {
+    return this.api.get<StockAvailability>(AppConstants.API.INVENTORY_AVAILABILITY, { branchId, productId });
   }
 }

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -22,10 +21,11 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
   selector: 'app-user-list',
   standalone: true,
   imports: [
-    NgIf, NgFor, FormsModule, TranslateModule, MatButtonModule, MatFormFieldModule, MatInputModule,
+    NgIf, NgFor, FormsModule, TranslateModule, MatFormFieldModule, MatInputModule,
     PageHeaderComponent, TablePagerComponent, EmptyStateComponent, LoadingSpinnerComponent,
   ],
   templateUrl: './user-list.component.html',
+  styleUrl: './user-list.component.scss',
 })
 export class UserListComponent implements OnInit {
   loading = true;
@@ -100,5 +100,9 @@ export class UserListComponent implements OnInit {
 
   rolesLabel(user: PosUser): string {
     return (user.roles ?? []).map((r) => this.i18n.instant(`ROLE.${r}`)).join(', ');
+  }
+
+  get activeCount(): number {
+    return this.users.filter((u) => u.active).length;
   }
 }

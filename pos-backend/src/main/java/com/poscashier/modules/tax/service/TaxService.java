@@ -70,6 +70,14 @@ public class TaxService {
                 .orElseThrow(() -> AppException.notFound("Tax not found"));
     }
 
+    @Transactional
+    public void delete(Long id) {
+        Tax tax = findEntity(id);
+        tax.setActive(false);
+        tax.setUpdatedAt(LocalDateTime.now());
+        taxRepository.save(tax);
+    }
+
     private void clearDefaultTax() {
         taxRepository.findAll().forEach(t -> {
             if (t.isDefaultTax()) {

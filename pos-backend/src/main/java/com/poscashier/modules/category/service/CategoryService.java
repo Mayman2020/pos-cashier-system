@@ -19,7 +19,11 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public Page<CategoryResponse> list(String q, Pageable pageable) {
-        return categoryRepository.search(q, pageable).map(CategoryResponse::from);
+        String query = q == null ? null : q.trim();
+        if (query == null || query.isEmpty()) {
+            return categoryRepository.findAllByOrderBySortOrderAscNameAsc(pageable).map(CategoryResponse::from);
+        }
+        return categoryRepository.search(query, pageable).map(CategoryResponse::from);
     }
 
     @Transactional(readOnly = true)

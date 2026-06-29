@@ -61,4 +61,12 @@ public class ModifierService {
         return modifierRepository.findById(id)
                 .orElseThrow(() -> AppException.notFound("Modifier not found"));
     }
+
+    @Transactional
+    public void delete(Long id) {
+        ProductModifier modifier = findEntity(id);
+        modifier.setActive(false);
+        modifier.setUpdatedAt(LocalDateTime.now());
+        modifierRepository.save(modifier);
+    }
 }

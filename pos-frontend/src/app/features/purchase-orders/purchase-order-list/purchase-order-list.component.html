@@ -1,0 +1,36 @@
+<div class="app-page">
+  <app-page-header [title]="'PO.TITLE' | translate" [subtitle]="'PO.SUBTITLE' | translate">
+    <button mat-flat-button type="button" (click)="openDialog()">{{ 'PO.ADD' | translate }}</button>
+  </app-page-header>
+  <div class="app-card">
+    <div class="app-table-wrap" *ngIf="orders.length; else empty">
+      <table class="app-data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>{{ 'COMMON.STATUS' | translate }}</th>
+            <th>{{ 'PO.ORDER_DATE' | translate }}</th>
+            <th>{{ 'POS.TOTAL' | translate }}</th>
+            <th>{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let po of orders">
+            <td>{{ po.id }}</td>
+            <td><span class="status-badge" [attr.data-status]="po.status">{{ ('PO.STATUS_' + po.status) | translate }}</span></td>
+            <td>{{ po.orderDate | rmsDate:'date' }}</td>
+            <td>{{ fmtMoney(Number(po.totalAmount)) }}</td>
+            <td class="actions-cell">
+              <button mat-stroked-button type="button" *ngIf="po.status !== 'RECEIVED' && po.status !== 'CANCELLED'" (click)="openDialog(po)">{{ 'ACTIONS.EDIT' | translate }}</button>
+              <button mat-stroked-button type="button" *ngIf="po.status === 'ORDERED' || po.status === 'DRAFT'" (click)="receive(po)">{{ 'PO.RECEIVE' | translate }}</button>
+              <button mat-stroked-button type="button" color="warn" *ngIf="po.status !== 'RECEIVED' && po.status !== 'CANCELLED'" (click)="cancel(po)">{{ 'ACTIONS.CANCEL' | translate }}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <app-table-pager [length]="total" [pageSize]="pageSize" [pageIndex]="pageIndex" (pageIndexChange)="pageIndex=$event; load()"></app-table-pager>
+    </div>
+    <ng-template #empty><app-empty-state *ngIf="!loading"></app-empty-state></ng-template>
+  </div>
+  <app-loading-spinner *ngIf="loading" [contained]="true"></app-loading-spinner>
+</div>

@@ -9,9 +9,11 @@ import org.springframework.data.repository.query.Param;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
+    Page<Category> findAllByOrderBySortOrderAscNameAsc(Pageable pageable);
+
     @Query("""
             SELECT c FROM Category c
-            WHERE (:q IS NULL OR :q = '' OR LOWER(c.name) LIKE LOWER(CONCAT('%', :q, '%')))
+            WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :q, '%'))
             ORDER BY c.sortOrder ASC, c.name ASC
             """)
     Page<Category> search(@Param("q") String q, Pageable pageable);

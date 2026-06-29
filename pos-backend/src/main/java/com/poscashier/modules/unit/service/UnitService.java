@@ -19,7 +19,11 @@ public class UnitService {
 
     @Transactional(readOnly = true)
     public Page<UnitResponse> list(String q, Pageable pageable) {
-        return unitRepository.search(q, pageable).map(UnitResponse::from);
+        String query = q == null ? null : q.trim();
+        if (query == null || query.isEmpty()) {
+            return unitRepository.findAll(pageable).map(UnitResponse::from);
+        }
+        return unitRepository.search(query, pageable).map(UnitResponse::from);
     }
 
     @Transactional(readOnly = true)

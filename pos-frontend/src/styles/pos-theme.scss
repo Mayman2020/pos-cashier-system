@@ -1,0 +1,72 @@
+/* Modern POS cashier theme — blue / purple accent */
+:root {
+  --pos-primary: #4f46e5;
+  --pos-primary-dark: #4338ca;
+  --pos-primary-light: #eef2ff;
+  --pos-accent: #7c3aed;
+  --pos-border: #e8ecf4;
+  --pos-surface: #ffffff;
+  --pos-page-bg: #f1f5f9;
+  --pos-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #7c3aed 100%);
+  --pos-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --pos-shadow-lg: 0 8px 30px rgba(15, 23, 42, 0.08);
+  --pos-radius: 12px;
+  --pos-radius-lg: 16px;
+}
+
+.pos-shell {
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #64748b;
+  --sidebar-text-active: #4f46e5;
+  --sidebar-item-hover: #f8fafc;
+  --sidebar-item-active: #eef2ff;
+  --bg-page: var(--pos-page-bg);
+  --paper: #f8fafc;
+  --surface: #ffffff;
+  --line: #e2e8f0;
+  --line-2: #f1f5f9;
+  --accent: var(--pos-primary);
+  --accent-soft: var(--pos-primary-light);
+  --shadow-soft: var(--pos-shadow-lg);
+}
+
+.pos-shell .sidebar {
+  border-inline-end: 1px solid var(--pos-border);
+  box-shadow: 2px 0 12px rgba(15, 23, 42, 0.04);
+  color: #334155;
+}
+
+.pos-shell .sidebar-brand {
+  border-bottom-color: #f1f5f9;
+}
+
+.pos-shell .brand-icon {
+  color: var(--pos-primary);
+}
+
+.pos-shell .brand-text {
+  color: #0f172a;
+  font-family: var(--font-ui);
+  font-weight: 800;
+}
+
+.pos-shell .nav-item.active {
+  color: var(--pos-primary);
+  font-weight: 700;
+}
+
+.pos-shell .sidebar-footer {
+  border-top-color: #f1f5f9;
+}
+
+.pos-shell .logout-btn {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.pos-shell .shell-content.pos-content {
+  min-height: 100vh;
+  padding: 0;
+  background: var(--pos-page-bg);
+}

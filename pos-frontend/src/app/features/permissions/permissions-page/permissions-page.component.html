@@ -1,0 +1,42 @@
+<div class="app-page">
+  <app-page-header [title]="'PERMISSIONS.TITLE' | translate" [subtitle]="'PERMISSIONS.SUBTITLE' | translate"></app-page-header>
+
+  <div class="loading-wrap" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="app-card permissions-card" *ngIf="!loading">
+    <div class="app-card-header permissions-toolbar">
+      <span class="app-card-title">{{ 'PERMISSIONS.SELECT_ROLE' | translate }}</span>
+      <button mat-flat-button type="button" (click)="save()" [disabled]="saving">
+        {{ 'ACTIONS.SAVE' | translate }}
+      </button>
+    </div>
+    <div class="role-field-wrap">
+      <mat-form-field appearance="outline" class="role-field">
+        <mat-label>{{ 'PERMISSIONS.SELECT_ROLE' | translate }}</mat-label>
+        <mat-select [(ngModel)]="selectedRole" (selectionChange)="onRoleChange()">
+          <mat-option *ngFor="let role of roles" [value]="role">{{ ('ROLE.' + role) | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="perm-grid" *ngIf="modules.length; else emptyPerms">
+      <div class="perm-header">
+        <span>{{ 'PERMISSIONS.MODULE' | translate }}</span>
+        <span *ngFor="let action of actions">{{ ('PERMISSIONS.' + action.toUpperCase()) | translate }}</span>
+      </div>
+      <div class="perm-row" *ngFor="let module of modules">
+        <span class="module-name">{{ moduleLabel(module) | translate }}</span>
+        <mat-checkbox
+          *ngFor="let action of actions"
+          [checked]="isChecked(module, action)"
+          (change)="toggle(module, action, $event.checked)">
+        </mat-checkbox>
+      </div>
+    </div>
+    <ng-template #emptyPerms>
+      <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
+    </ng-template>
+  </div>
+</div>

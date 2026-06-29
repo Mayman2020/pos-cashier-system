@@ -1,0 +1,40 @@
+<div class="checkout-overlay" *ngIf="open" (click)="close.emit()">
+  <div class="checkout-card" (click)="$event.stopPropagation()">
+    <header>
+      <h3>{{ 'POS.PAYMENT' | translate }}</h3>
+      <button type="button" class="close-x" (click)="close.emit()"><span class="material-icons">close</span></button>
+    </header>
+    <p class="pay-total">{{ formatMoney(total) }}</p>
+
+    <div class="pay-methods">
+      <button type="button" [class.active]="paymentMethod === 'CASH'" (click)="paymentMethodChange.emit('CASH')">{{ 'PAYMENT.CASH' | translate }}</button>
+      <button type="button" [class.active]="paymentMethod === 'CARD'" (click)="paymentMethodChange.emit('CARD')">{{ 'PAYMENT.CARD' | translate }}</button>
+      <button type="button" [class.active]="paymentMethod === 'OTHER'" (click)="paymentMethodChange.emit('OTHER')">{{ 'PAYMENT.WALLET' | translate }}</button>
+      <button type="button" [class.active]="paymentMethod === 'MIXED'" (click)="paymentMethodChange.emit('MIXED')">{{ 'PAYMENT.MIXED' | translate }}</button>
+    </div>
+
+    <mat-form-field appearance="outline" class="full" *ngIf="paymentMethod === 'CASH'">
+      <mat-label>{{ 'POS.AMOUNT_TENDERED' | translate }}</mat-label>
+      <input matInput type="number" [ngModel]="amountTendered" (ngModelChange)="amountTenderedChange.emit($event)" />
+    </mat-form-field>
+    <p class="change" *ngIf="paymentMethod === 'CASH' && changeDue > 0">{{ 'POS.CHANGE' | translate }}: {{ formatMoney(changeDue) }}</p>
+
+    <ng-container *ngIf="paymentMethod === 'MIXED'">
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>{{ 'PAYMENT.CASH' | translate }}</mat-label>
+        <input matInput type="number" [ngModel]="cashAmount" (ngModelChange)="cashAmountChange.emit($event)" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>{{ 'PAYMENT.CARD' | translate }}</mat-label>
+        <input matInput type="number" [ngModel]="cardAmount" (ngModelChange)="cardAmountChange.emit($event)" />
+      </mat-form-field>
+    </ng-container>
+
+    <footer>
+      <button mat-stroked-button type="button" (click)="close.emit()">{{ 'ACTIONS.CANCEL' | translate }}</button>
+      <button mat-flat-button type="button" class="confirm-btn" [disabled]="processing" (click)="confirm.emit()">
+        {{ 'POS.CONFIRM_PAY' | translate }}
+      </button>
+    </footer>
+  </div>
+</div>

@@ -15,7 +15,7 @@ public interface SupplierRepository extends JpaRepository<Supplier, Long> {
 
     @Query("""
             SELECT s FROM Supplier s
-            WHERE (:q IS NULL OR :q = '' OR LOWER(s.name) LIKE LOWER(CONCAT('%', :q, '%'))
+            WHERE (LOWER(s.name) LIKE LOWER(CONCAT('%', :q, '%'))
                 OR LOWER(s.code) LIKE LOWER(CONCAT('%', :q, '%')))
             """)
     Page<Supplier> search(@Param("q") String q, Pageable pageable);

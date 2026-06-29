@@ -1,0 +1,13 @@
+<div class="pos-category-tabs">
+  <button type="button" class="tab" [class.active]="selectedId === null" (click)="select(null)">
+    {{ 'POS.ALL_CATEGORIES' | translate }}
+  </button>
+  <button
+    type="button"
+    class="tab"
+    *ngFor="let cat of categories"
+    [class.active]="selectedId === cat.id"
+    (click)="select(cat.id)">
+    {{ cat.name }}
+  </button>
+</div>

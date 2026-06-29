@@ -4,12 +4,47 @@
   </app-page-header>
 
   <div class="app-card" *ngIf="!loading">
-    <div class="app-card-body settings-grid">
-      <div class="setting-row" *ngFor="let key of keys">
-        <label>{{ settingLabel(key) }}</label>
-        <input [(ngModel)]="settings[key]" [readonly]="!canEdit" />
-      </div>
-      <p *ngIf="!keys.length">{{ 'COMMON.NO_DATA' | translate }}</p>
+    <div class="app-card-body">
+      <mat-tab-group>
+        <mat-tab [label]="'SETTINGS.TAB_GENERAL' | translate">
+          <div class="settings-section">
+            <div class="setting-field" *ngFor="let key of generalKeys">
+              <label>{{ settingLabel(key) }}</label>
+              <input [(ngModel)]="settings[key]" [readonly]="!canEdit" />
+            </div>
+          </div>
+        </mat-tab>
+        <mat-tab [label]="'SETTINGS.TAB_POS' | translate">
+          <div class="settings-section">
+            <div class="toggle-row" *ngFor="let key of posKeys">
+              <mat-checkbox *ngIf="isBool(key)" [checked]="getBool(key)" [disabled]="!canEdit" (change)="setBool(key, $event.checked)">
+                {{ settingLabel(key) }}
+              </mat-checkbox>
+              <ng-container *ngIf="!isBool(key)">
+                <label>{{ settingLabel(key) }}</label>
+                <input [(ngModel)]="settings[key]" [readonly]="!canEdit" />
+              </ng-container>
+            </div>
+          </div>
+        </mat-tab>
+        <mat-tab [label]="'SETTINGS.TAB_MODES' | translate">
+          <div class="settings-section">
+            <div class="toggle-row" *ngFor="let key of modeKeys">
+              <mat-checkbox [checked]="getBool(key)" [disabled]="!canEdit" (change)="setBool(key, $event.checked)">
+                {{ settingLabel(key) }}
+              </mat-checkbox>
+            </div>
+          </div>
+        </mat-tab>
+        <mat-tab [label]="'SETTINGS.TAB_LOYALTY' | translate">
+          <div class="settings-section">
+            <div class="setting-field" *ngFor="let key of loyaltyKeys">
+              <label>{{ settingLabel(key) }}</label>
+              <input [(ngModel)]="settings[key]" [readonly]="!canEdit" />
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
     </div>
   </div>
 

@@ -22,7 +22,19 @@ export class ApiService {
     return this.http.get<ApiResponse<T>>(`${this.base}${path}`, { params: httpParams }).pipe(map((r) => this.unwrap(r)));
   }
 
-  post<T>(path: string, body: unknown): Observable<T> {
+  post<T>(path: string, body: unknown, params?: Record<string, string | number | boolean | undefined | null>): Observable<T> {
+    let httpParams = new HttpParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') {
+          httpParams = httpParams.set(k, String(v));
+        }
+      });
+    }
+    return this.http.post<ApiResponse<T>>(`${this.base}${path}`, body, { params: httpParams }).pipe(map((r) => this.unwrap(r)));
+  }
+
+  postForm<T>(path: string, body: FormData): Observable<T> {
     return this.http.post<ApiResponse<T>>(`${this.base}${path}`, body).pipe(map((r) => this.unwrap(r)));
   }
 

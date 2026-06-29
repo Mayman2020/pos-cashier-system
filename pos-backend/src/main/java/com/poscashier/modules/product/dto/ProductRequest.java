@@ -36,6 +36,8 @@ public class ProductRequest {
 
     private BigDecimal taxRate;
 
+    private Long taxId;
+
     private Boolean trackStock;
 
     private BigDecimal lowStockThreshold;

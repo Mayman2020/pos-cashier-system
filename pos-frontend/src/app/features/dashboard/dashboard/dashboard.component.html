@@ -1,31 +1,65 @@
 <div class="app-page">
   <app-page-header [title]="'DASHBOARD.TITLE' | translate" [subtitle]="'DASHBOARD.SUBTITLE' | translate"></app-page-header>
 
-  <div class="stat-grid" *ngIf="summary && !loading">
-    <app-stat-card icon="receipt_long" [label]="'DASHBOARD.TODAY_ORDERS' | translate" [value]="summary.todayOrders"></app-stat-card>
-    <app-stat-card icon="payments" [label]="'DASHBOARD.TODAY_SALES' | translate" [value]="fmtMoney(summary.todaySales)"></app-stat-card>
-    <app-stat-card icon="schedule" [label]="'DASHBOARD.OPEN_SHIFTS' | translate" [value]="summary.openShifts"></app-stat-card>
-    <app-stat-card icon="warning" [label]="'DASHBOARD.LOW_STOCK' | translate" [value]="summary.lowStockItems"></app-stat-card>
-    <app-stat-card icon="inventory_2" [label]="'DASHBOARD.ACTIVE_PRODUCTS' | translate" [value]="summary.activeProducts"></app-stat-card>
-    <app-stat-card icon="groups" [label]="'DASHBOARD.ACTIVE_CUSTOMERS' | translate" [value]="summary.activeCustomers"></app-stat-card>
-  </div>
-
-  <div class="app-card low-stock-panel" *ngIf="summary?.lowStockPreview?.length">
-    <div class="panel-head">
-      <h3>{{ 'DASHBOARD.LOW_STOCK_ALERT' | translate }}</h3>
-      <a routerLink="/admin/inventory">{{ 'DASHBOARD.VIEW_INVENTORY' | translate }}</a>
+  <div class="dashboard-body" *ngIf="summary && !loading">
+    <div class="stat-grid primary-stats">
+      <app-stat-card icon="receipt_long" [label]="'DASHBOARD.TODAY_ORDERS' | translate" [value]="summary.todayOrders"></app-stat-card>
+      <app-stat-card icon="payments" [label]="'DASHBOARD.TODAY_SALES' | translate" [value]="fmtMoney(summary.todaySales)"></app-stat-card>
+      <app-stat-card icon="schedule" [label]="'DASHBOARD.OPEN_SHIFTS' | translate" [value]="summary.openShifts"></app-stat-card>
+      <a routerLink="/admin/orders" [queryParams]="{ status: 'HELD' }" class="stat-link">
+        <app-stat-card icon="pause_circle" [label]="'DASHBOARD.HELD_ORDERS' | translate" [value]="summary.heldOrders ?? 0"></app-stat-card>
+      </a>
     </div>
-    <table class="app-data-table">
-      <thead><tr><th>{{ 'PRODUCTS.NAME' | translate }}</th><th>{{ 'PRODUCTS.SKU' | translate }}</th><th>{{ 'INVENTORY.QTY' | translate }}</th><th>{{ 'INVENTORY.THRESHOLD' | translate }}</th></tr></thead>
-      <tbody>
-        <tr *ngFor="let item of summary!.lowStockPreview!">
-          <td>{{ item.productName }}</td>
-          <td>{{ item.productSku }}</td>
-          <td>{{ item.quantity }}</td>
-          <td>{{ item.lowStockThreshold }}</td>
-        </tr>
-      </tbody>
-    </table>
+
+    <div class="payment-split app-card">
+      <div class="split-head">
+        <h3>{{ 'DASHBOARD.PAYMENT_SPLIT' | translate }}</h3>
+        <span>{{ 'DASHBOARD.TODAY_SALES' | translate }}: {{ fmtMoney(summary.todaySales) }}</span>
+      </div>
+      <div class="split-bars">
+        <div class="bar cash" [style.width.%]="cashShare"><span>{{ 'PAYMENT.CASH' | translate }} {{ cashShare }}%</span></div>
+        <div class="bar card" [style.width.%]="cardShare"><span>{{ 'PAYMENT.CARD' | translate }} {{ cardShare }}%</span></div>
+      </div>
+      <div class="split-values">
+        <span>{{ 'PAYMENT.CASH' | translate }}: {{ fmtMoney(summary.todayCashSales) }}</span>
+        <span>{{ 'PAYMENT.CARD' | translate }}: {{ fmtMoney(summary.todayCardSales) }}</span>
+      </div>
+    </div>
+
+    <div class="stat-grid secondary-stats">
+      <app-stat-card icon="warning" [label]="'DASHBOARD.LOW_STOCK' | translate" [value]="summary.lowStockItems"></app-stat-card>
+      <app-stat-card icon="inventory_2" [label]="'DASHBOARD.ACTIVE_PRODUCTS' | translate" [value]="summary.activeProducts"></app-stat-card>
+      <app-stat-card icon="groups" [label]="'DASHBOARD.ACTIVE_CUSTOMERS' | translate" [value]="summary.activeCustomers"></app-stat-card>
+    </div>
+
+    <div class="quick-links app-card">
+      <h3>{{ 'DASHBOARD.QUICK_ACTIONS' | translate }}</h3>
+      <div class="links">
+        <a routerLink="/admin/pos" class="quick-link">{{ 'NAV.POS' | translate }}</a>
+        <a routerLink="/admin/orders" class="quick-link">{{ 'NAV.ORDERS' | translate }}</a>
+        <a routerLink="/admin/shifts" class="quick-link">{{ 'NAV.SHIFTS' | translate }}</a>
+        <a routerLink="/admin/inventory" class="quick-link">{{ 'NAV.INVENTORY' | translate }}</a>
+        <a routerLink="/admin/reports" class="quick-link">{{ 'NAV.REPORTS' | translate }}</a>
+      </div>
+    </div>
+
+    <div class="app-card low-stock-panel" *ngIf="summary.lowStockPreview?.length">
+      <div class="panel-head">
+        <h3>{{ 'DASHBOARD.LOW_STOCK_ALERT' | translate }}</h3>
+        <a routerLink="/admin/inventory">{{ 'DASHBOARD.VIEW_INVENTORY' | translate }}</a>
+      </div>
+      <table class="app-data-table">
+        <thead><tr><th>{{ 'PRODUCTS.NAME' | translate }}</th><th>{{ 'PRODUCTS.SKU' | translate }}</th><th>{{ 'INVENTORY.QTY' | translate }}</th><th>{{ 'INVENTORY.THRESHOLD' | translate }}</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let item of summary.lowStockPreview!">
+            <td>{{ item.productName }}</td>
+            <td>{{ item.productSku }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.lowStockThreshold }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <app-loading-spinner *ngIf="loading" [contained]="true"></app-loading-spinner>

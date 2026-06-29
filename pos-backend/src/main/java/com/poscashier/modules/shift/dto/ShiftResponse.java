@@ -23,6 +23,11 @@ public class ShiftResponse {
     private BigDecimal actualCash;
     private BigDecimal cashDifference;
     private BigDecimal totalSales;
+    private BigDecimal totalCashSales;
+    private BigDecimal totalCardSales;
+    private BigDecimal totalRefundsCash;
+    private BigDecimal totalRefundsCard;
+    private BigDecimal totalPayouts;
     private String notes;
 
     public static ShiftResponse from(Shift shift) {
@@ -38,6 +43,11 @@ public class ShiftResponse {
                 .actualCash(shift.getActualCash())
                 .cashDifference(shift.getCashDifference())
                 .totalSales(shift.getTotalSales())
+                .totalCashSales(shift.getTotalCashSales())
+                .totalCardSales(shift.getTotalCardSales())
+                .totalRefundsCash(shift.getTotalRefundsCash())
+                .totalRefundsCard(shift.getTotalRefundsCard())
+                .totalPayouts(shift.getTotalPayouts())
                 .notes(shift.getNotes())
                 .build();
     }

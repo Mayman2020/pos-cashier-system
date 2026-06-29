@@ -3,6 +3,7 @@ package com.poscashier.modules.pos.controller;
 import com.poscashier.modules.pos.dto.CreateOrderRequest;
 import com.poscashier.modules.pos.dto.OrderResponse;
 import com.poscashier.modules.pos.dto.PayOrderRequest;
+import com.poscashier.modules.pos.dto.RefundOrderRequest;
 import com.poscashier.modules.pos.dto.UpdateOrderRequest;
 import com.poscashier.modules.pos.service.PosOrderService;
 import com.poscashier.shared.enums.OrderStatus;
@@ -79,7 +80,8 @@ public class PosOrderController {
 
     @PostMapping("/{id}/refund")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
-    public ResponseEntity<ApiResponse<OrderResponse>> refund(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(posOrderService.refund(id)));
+    public ResponseEntity<ApiResponse<OrderResponse>> refund(
+            @PathVariable Long id, @Valid @RequestBody(required = false) RefundOrderRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok(posOrderService.refund(id, request)));
     }
 }

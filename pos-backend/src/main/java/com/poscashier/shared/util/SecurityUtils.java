@@ -18,6 +18,14 @@ public final class SecurityUtils {
         return user;
     }
 
+    public static User getCurrentUserOrNull() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
+            return null;
+        }
+        return user;
+    }
+
     public static boolean hasRole(User user, String role) {
         return user.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_" + role));

@@ -1,4 +1,38 @@
-<div class="pos-page">
+<div class="pos-screen">
+  <header class="pos-header">
+    <div class="search-wrap">
+      <span class="material-icons">search</span>
+      <input
+        #searchInput
+        [(ngModel)]="search"
+        (keydown)="onSearchKeydown($event)"
+        [placeholder]="'POS.SEARCH_PLACEHOLDER' | translate" />
+    </div>
+    <div class="header-actions">
+      <button type="button" class="header-btn" (click)="toggleFullscreen()">
+        <span class="material-icons">fullscreen</span>
+        {{ 'POS.FULLSCREEN' | translate }}
+        <kbd>F11</kbd>
+      </button>
+      <div class="user-chip">
+        <span class="avatar material-icons">account_circle</span>
+        <div>
+          <strong>{{ userName }}</strong>
+          <small>{{ roleKey | translate }}</small>
+        </div>
+        <span class="material-icons bell">notifications</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="pos-shift-bar" *ngIf="openShift">
+    <span>{{ 'SHIFTS.OPEN' | translate }} #{{ openShift.id }}</span>
+    <span>{{ 'SHIFTS.TOTAL_SALES' | translate }}: {{ fmtMoney(Number(openShift.totalSales ?? 0)) }}</span>
+    <span>{{ 'PAYMENT.CASH' | translate }}: {{ fmtMoney(Number(openShift.totalCashSales ?? 0)) }}</span>
+    <span>{{ 'PAYMENT.CARD' | translate }}: {{ fmtMoney(Number(openShift.totalCardSales ?? 0)) }}</span>
+    <button mat-stroked-button type="button" class="close-shift-btn" (click)="closeShiftNow()">{{ 'SHIFTS.CLOSE' | translate }}</button>
+  </div>
+
   <div class="shift-banner" *ngIf="showShiftPanel">
     <div>
       <strong>{{ 'POS.SHIFT_REQUIRED' | translate }}</strong>
@@ -10,115 +44,98 @@
     </div>
   </div>
 
-  <div class="pos-toolbar" *ngIf="restaurantMode">
-    <mat-form-field appearance="outline" class="toolbar-field">
-      <mat-label>{{ 'POS.ORDER_TYPE' | translate }}</mat-label>
-      <mat-select [(ngModel)]="orderType">
-        <mat-option value="RETAIL">{{ 'POS.TYPE_RETAIL' | translate }}</mat-option>
-        <mat-option value="DINE_IN">{{ 'POS.TYPE_DINE_IN' | translate }}</mat-option>
-        <mat-option value="TAKEAWAY">{{ 'POS.TYPE_TAKEAWAY' | translate }}</mat-option>
-        <mat-option value="DELIVERY">{{ 'POS.TYPE_DELIVERY' | translate }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="toolbar-field" *ngIf="orderType === 'DINE_IN'">
-      <mat-label>{{ 'POS.TABLE' | translate }}</mat-label>
-      <mat-select [(ngModel)]="tableId">
-        <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
-        <mat-option *ngFor="let t of tables" [value]="t.id">{{ tableLabel(t) }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+  <div class="pos-toolbar">
     <mat-form-field appearance="outline" class="toolbar-field">
       <mat-label>{{ 'CUSTOMERS.TITLE' | translate }}</mat-label>
-      <mat-select [(ngModel)]="customerId">
+      <mat-select [(ngModel)]="customerId" (ngModelChange)="onCustomerChange()">
         <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
         <mat-option *ngFor="let c of customers" [value]="c.id">{{ c.name }}</mat-option>
       </mat-select>
     </mat-form-field>
+    <mat-form-field appearance="outline" class="toolbar-field" *ngIf="selectedCustomer">
+      <mat-label>{{ 'POS.LOYALTY_REDEEM' | translate }}</mat-label>
+      <input matInput type="number" min="0" [max]="selectedCustomer.loyaltyPoints ?? 0" [(ngModel)]="loyaltyRedeem" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="toolbar-field" *ngIf="discounts.length">
+      <mat-label>{{ 'POS.DISCOUNT_CODE' | translate }}</mat-label>
+      <mat-select [(ngModel)]="selectedDiscountCode" (ngModelChange)="onDiscountCodeChange($event)">
+        <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
+        <mat-option *ngFor="let d of discounts" [value]="d.code">{{ d.code }} — {{ d.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <ng-container *ngIf="restaurantMode">
+      <mat-form-field appearance="outline" class="toolbar-field">
+        <mat-label>{{ 'POS.ORDER_TYPE' | translate }}</mat-label>
+        <mat-select [(ngModel)]="orderType">
+          <mat-option value="RETAIL">{{ 'POS.TYPE_RETAIL' | translate }}</mat-option>
+          <mat-option value="DINE_IN">{{ 'POS.TYPE_DINE_IN' | translate }}</mat-option>
+          <mat-option value="TAKEAWAY">{{ 'POS.TYPE_TAKEAWAY' | translate }}</mat-option>
+          <mat-option value="DELIVERY">{{ 'POS.TYPE_DELIVERY' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="toolbar-field" *ngIf="orderType === 'DINE_IN'">
+        <mat-label>{{ 'POS.TABLE' | translate }}</mat-label>
+        <mat-select [(ngModel)]="tableId">
+          <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
+          <mat-option *ngFor="let t of tables" [value]="t.id">{{ tableLabel(t) }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </ng-container>
   </div>
 
-  <div class="pos-layout" [class.blocked]="posBlocked">
-    <aside class="pos-categories">
-      <button type="button" class="pos-cat-btn" [class.active]="selectedCategoryId === null" (click)="selectCategory(null)">
-        {{ 'POS.ALL_CATEGORIES' | translate }}
-      </button>
-      <button
-        type="button"
-        class="pos-cat-btn"
-        *ngFor="let cat of categories"
-        [class.active]="selectedCategoryId === cat.id"
-        (click)="selectCategory(cat.id)">
-        {{ cat.name }}
-      </button>
-    </aside>
+  <div class="pos-workspace" [class.blocked]="posBlocked">
+    <section class="products-zone" [class.mobile-hidden]="mobileView === 'cart'">
+      <app-pos-category-tabs
+        [categories]="categories"
+        [selectedId]="selectedCategoryId"
+        (selectedIdChange)="selectCategory($event)"></app-pos-category-tabs>
 
-    <section class="pos-products">
-      <div class="pos-search">
-        <input
-          [(ngModel)]="search"
-          (keydown)="onSearchKeydown($event)"
-          [placeholder]="'POS.SEARCH_BARCODE' | translate" />
-      </div>
-      <div class="product-grid">
-        <button type="button" class="product-tile" *ngFor="let p of filteredProducts" (click)="addProductClick(p)">
-          <span class="product-name">{{ p.name }}</span>
-          <span class="product-sku" *ngIf="p.barcode">{{ p.barcode }}</span>
-          <span class="product-price">{{ fmtMoney(Number(p.sellingPrice)) }}</span>
-        </button>
-      </div>
-    </section>
-
-    <aside class="pos-cart">
-      <h2>{{ 'POS.CART' | translate }} ({{ cartCount }})</h2>
-      <div class="cart-lines">
-        <div class="cart-line" *ngFor="let line of cart">
-          <div class="line-info">
-            <strong>{{ line.product.name }}</strong>
-            <span>{{ fmtMoney(Number(line.product.sellingPrice)) }}</span>
-            <small *ngIf="line.modifiers.length">{{ modifierLabel(line) }}</small>
-          </div>
-          <div class="line-qty">
-            <button type="button" class="qty-btn" (click)="changeQty(line, -1)">−</button>
-            <span>{{ line.quantity }}</span>
-            <button type="button" class="qty-btn" (click)="changeQty(line, 1)">+</button>
-          </div>
+      <div class="products-head">
+        <h2>{{ 'NAV.PRODUCTS' | translate }}</h2>
+        <div class="view-toggle">
+          <button type="button" [class.active]="gridView" (click)="gridView = true"><span class="material-icons">grid_view</span></button>
+          <button type="button" [class.active]="!gridView" (click)="gridView = false"><span class="material-icons">view_list</span></button>
         </div>
       </div>
 
-      <div class="order-discount">
-        <mat-form-field appearance="outline" class="full-discount" *ngIf="discounts.length">
-          <mat-label>{{ 'POS.DISCOUNT_CODE' | translate }}</mat-label>
-          <mat-select [(ngModel)]="selectedDiscountCode" (ngModelChange)="onDiscountCodeChange($event)">
-            <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
-            <mat-option *ngFor="let d of discounts" [value]="d.code">{{ d.code }} — {{ d.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <label>{{ 'POS.MANUAL_DISCOUNT' | translate }}</label>
-        <input type="number" min="0" step="0.01" [(ngModel)]="orderDiscount" (ngModelChange)="onManualDiscountChange()" [disabled]="!!selectedDiscountCode && !manualDiscount" />
+      <div class="product-grid" [class.list-view]="!gridView">
+        <app-pos-product-card
+          *ngFor="let p of filteredProducts"
+          [product]="p"
+          [priceLabel]="fmtMoney(Number(p.sellingPrice))"
+          [stock]="stockFor(p.id)"
+          [outOfStock]="isOutOfStock(p)"
+          (add)="addProductClick(p)"></app-pos-product-card>
       </div>
+    </section>
+
+    <aside class="cart-zone" [class.mobile-hidden]="mobileView === 'products'">
+      <app-pos-cart-panel
+        [lines]="cart"
+        [cartCount]="cartCount"
+        [subtotal]="displaySubtotal"
+        [tax]="displayTax"
+        [discount]="displayDiscount"
+        [total]="displayTotal"
+        [orderDiscount]="orderDiscount"
+        [orderNote]="orderNote"
+        [blocked]="posBlocked"
+        [allowManualDiscount]="allowManualDiscount"
+        [formatMoney]="fmtMoney.bind(this)"
+        [modifierLabel]="modifierLabel.bind(this)"
+        [lineUnitPrice]="lineUnitPrice.bind(this)"
+        (orderDiscountChange)="onManualDiscountChange($event)"
+        (orderNoteChange)="orderNote = $event"
+        (qtyChange)="changeQty($event.line, $event.delta)"
+        (clear)="clearCart()"
+        (checkout)="checkout()"
+        (hold)="holdOrder()"
+        (cancel)="cancelOrder()"></app-pos-cart-panel>
 
       <p class="kitchen-badge" *ngIf="showKitchenBadge">
         {{ 'POS.KITCHEN_STATUS' | translate }}:
         <span class="status-badge" [attr.data-status]="currentOrder!.kitchenStatus">{{ ('STATUS.' + currentOrder!.kitchenStatus) | translate }}</span>
       </p>
-
-      <div class="cart-summary">
-        <div class="summary-row"><span>{{ 'POS.SUBTOTAL' | translate }}</span><span>{{ fmtMoney(displaySubtotal) }}</span></div>
-        <div class="summary-row"><span>{{ 'POS.TAX' | translate }}</span><span>{{ fmtMoney(displayTax) }}</span></div>
-        <div class="summary-row"><span>{{ 'POS.DISCOUNT' | translate }}</span><span>-{{ fmtMoney(displayDiscount) }}</span></div>
-        <div class="summary-row total"><strong>{{ 'POS.TOTAL' | translate }}</strong><strong>{{ fmtMoney(displayTotal) }}</strong></div>
-      </div>
-
-      <div class="pos-actions">
-        <button mat-flat-button class="pos-action-btn checkout" type="button" (click)="checkout()" [disabled]="!cart.length || posBlocked">
-          {{ 'POS.CHECKOUT' | translate }}
-        </button>
-        <button mat-stroked-button class="pos-action-btn" type="button" (click)="holdOrder()" [disabled]="!cart.length || posBlocked">
-          {{ 'POS.HOLD' | translate }}
-        </button>
-        <button mat-stroked-button class="pos-action-btn danger" type="button" (click)="cancelOrder()" [disabled]="!cart.length && !currentOrder">
-          {{ 'POS.CANCEL' | translate }}
-        </button>
-      </div>
 
       <div class="held-block" *ngIf="heldOrders.length">
         <h3>{{ 'POS.HELD_ORDERS' | translate }}</h3>
@@ -127,47 +144,57 @@
         </button>
       </div>
     </aside>
+
+    <aside class="keypad-zone">
+      <app-pos-numeric-keypad
+        [value]="keypadValue"
+        (valueChange)="onKeypadChange($event)"
+        (enter)="onKeypadEnter()"></app-pos-numeric-keypad>
+    </aside>
   </div>
 
-  <div class="payment-panel" *ngIf="showPayment">
-    <div class="payment-card">
-      <h3>{{ 'POS.PAYMENT' | translate }}</h3>
-      <p class="pay-total">{{ fmtMoney(displayTotal) }}</p>
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>{{ 'POS.PAYMENT_METHOD' | translate }}</mat-label>
-        <mat-select [(ngModel)]="paymentMethod">
-          <mat-option value="CASH">{{ 'PAYMENT.CASH' | translate }}</mat-option>
-          <mat-option value="CARD">{{ 'PAYMENT.CARD' | translate }}</mat-option>
-          <mat-option value="MIXED">{{ 'PAYMENT.MIXED' | translate }}</mat-option>
-          <mat-option value="OTHER">{{ 'PAYMENT.OTHER' | translate }}</mat-option>
-        </mat-select>
-      </mat-form-field>
+  <app-pos-quick-actions-bar
+    [canManageCustomers]="canManageCustomers"
+    [canManageProducts]="canManageProducts"
+    (newCustomer)="goNewCustomer()"
+    (newProduct)="goNewProduct()"
+    (openDrawer)="openCashDrawer()"
+    (refund)="goRefund()"
+    (hold)="holdOrder()"
+    (search)="focusSearch()"
+    (checkout)="checkout()"></app-pos-quick-actions-bar>
 
-      <mat-form-field appearance="outline" class="full-width" *ngIf="paymentMethod === 'CASH'">
-        <mat-label>{{ 'POS.AMOUNT_TENDERED' | translate }}</mat-label>
-        <input matInput type="number" [(ngModel)]="amountTendered" />
-      </mat-form-field>
-      <p *ngIf="paymentMethod === 'CASH' && changeDue > 0">{{ 'POS.CHANGE' | translate }}: {{ fmtMoney(changeDue) }}</p>
+  <button
+    type="button"
+    class="mobile-cart-fab"
+    *ngIf="mobileView === 'products' && cartCount"
+    (click)="mobileView = 'cart'">
+    <span class="material-icons">shopping_cart</span>
+    <span>{{ cartCount }}</span>
+    <strong>{{ fmtMoney(displayTotal) }}</strong>
+  </button>
 
-      <ng-container *ngIf="paymentMethod === 'MIXED'">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'PAYMENT.CASH' | translate }}</mat-label>
-          <input matInput type="number" [(ngModel)]="cashAmount" />
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'PAYMENT.CARD' | translate }}</mat-label>
-          <input matInput type="number" [(ngModel)]="cardAmount" />
-        </mat-form-field>
-      </ng-container>
+  <button type="button" class="mobile-back-products" *ngIf="mobileView === 'cart'" (click)="mobileView = 'products'">
+    <span class="material-icons">arrow_back</span>
+    {{ 'NAV.PRODUCTS' | translate }}
+  </button>
 
-      <div class="payment-actions">
-        <button mat-stroked-button type="button" (click)="showPayment = false">{{ 'ACTIONS.CANCEL' | translate }}</button>
-        <button mat-flat-button type="button" class="pos-action-btn" (click)="confirmPayment()" [disabled]="processing">
-          {{ 'POS.CONFIRM_PAY' | translate }}
-        </button>
-      </div>
-    </div>
-  </div>
+  <app-pos-checkout-modal
+    [open]="showPayment"
+    [total]="displayTotal"
+    [processing]="processing"
+    [paymentMethod]="paymentMethod"
+    [amountTendered]="amountTendered"
+    [cashAmount]="cashAmount"
+    [cardAmount]="cardAmount"
+    [changeDue]="changeDue"
+    [formatMoney]="fmtMoney.bind(this)"
+    (paymentMethodChange)="paymentMethod = $event"
+    (amountTenderedChange)="amountTendered = $event"
+    (cashAmountChange)="cashAmount = $event"
+    (cardAmountChange)="cardAmount = $event"
+    (close)="showPayment = false"
+    (confirm)="confirmPayment()"></app-pos-checkout-modal>
 
   <app-loading-spinner *ngIf="loading || processing" [contained]="true"></app-loading-spinner>
 </div>

@@ -23,8 +23,14 @@ public class SettingsController {
         return ResponseEntity.ok(ApiResponse.ok(settingsService.getAll()));
     }
 
+    @GetMapping("/pos")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','CASHIER')")
+    public ResponseEntity<ApiResponse<SettingsResponse>> getPos() {
+        return ResponseEntity.ok(ApiResponse.ok(settingsService.getPosSettings()));
+    }
+
     @PutMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<ApiResponse<SettingsResponse>> update(@Valid @RequestBody SettingsUpdateRequest request) {
         return ResponseEntity.ok(ApiResponse.ok(settingsService.update(request)));
     }

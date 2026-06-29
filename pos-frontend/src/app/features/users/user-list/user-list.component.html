@@ -1,44 +1,79 @@
 <div class="app-page">
   <app-page-header [title]="'USERS.TITLE' | translate" [subtitle]="'USERS.SUBTITLE' | translate">
-    <button mat-flat-button type="button" *ngIf="isAdmin" (click)="openDialog()">{{ 'USERS.ADD' | translate }}</button>
+    <button type="button" class="app-icon-btn" *ngIf="isAdmin" (click)="openDialog()" [title]="'USERS.ADD' | translate">
+      <span class="material-icons">add</span>
+    </button>
+    <button type="button" class="app-icon-btn" (click)="pageIndex=0; load()" [title]="'COMMON.REFRESH' | translate">
+      <span class="material-icons">refresh</span>
+    </button>
   </app-page-header>
 
-  <div class="filters app-card">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>{{ 'COMMON.SEARCH' | translate }}</mat-label>
-      <input matInput [(ngModel)]="search" (keyup.enter)="pageIndex=0; load()" />
-    </mat-form-field>
-    <button mat-stroked-button type="button" (click)="pageIndex=0; load()">{{ 'COMMON.REFRESH' | translate }}</button>
+  <div class="app-list-surface">
+    <section class="list-stats">
+      <article class="stat-pill stat-pill--purple">
+        <span class="stat-label">{{ 'COMMON.ALL' | translate }}</span>
+        <strong>{{ total }}</strong>
+      </article>
+      <article class="stat-pill stat-pill--cyan">
+        <span class="stat-label">{{ 'COMMON.ACTIVE' | translate }}</span>
+        <strong>{{ activeCount }}</strong>
+      </article>
+      <article class="stat-pill stat-pill--orange">
+        <span class="stat-label">{{ 'COMMON.INACTIVE' | translate }}</span>
+        <strong>{{ users.length - activeCount }}</strong>
+      </article>
+    </section>
+
+    <section class="estate-card directory-table-card">
+      <div class="estate-table-toolbar directory-toolbar">
+        <div class="directory-toolbar-top table-list-toolbar">
+          <label class="estate-search-inline">
+            <span class="material-icons">search</span>
+            <input [(ngModel)]="search" (keyup.enter)="pageIndex=0; load()" [placeholder]="'COMMON.SEARCH' | translate" />
+          </label>
+          <button type="button" class="app-icon-btn" (click)="pageIndex=0; load()" [title]="'COMMON.SEARCH' | translate">
+            <span class="material-icons">search</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="app-table-wrap" *ngIf="users.length; else empty">
+        <table class="app-data-table">
+          <thead>
+            <tr>
+              <th>{{ 'AUTH.USERNAME' | translate }}</th>
+              <th>{{ 'CUSTOMERS.NAME' | translate }}</th>
+              <th>{{ 'USERS.ROLES' | translate }}</th>
+              <th>{{ 'COMMON.STATUS' | translate }}</th>
+              <th *ngIf="isAdmin">{{ 'COMMON.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of users">
+              <td>{{ u.username }}</td>
+              <td>{{ u.fullName || u.email }}</td>
+              <td>{{ rolesLabel(u) }}</td>
+              <td>
+                <span class="status-badge" [attr.data-status]="u.active ? 'ACTIVE' : 'CANCELLED'">
+                  {{ (u.active ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
+                </span>
+              </td>
+              <td *ngIf="isAdmin" class="actions-cell">
+                <button type="button" class="app-icon-btn" (click)="openDialog(u)" [title]="'USERS.EDIT' | translate">
+                  <span class="material-icons">edit</span>
+                </button>
+                <button type="button" class="app-icon-btn danger" (click)="deleteUser(u)" [title]="'COMMON.DELETE' | translate">
+                  <span class="material-icons">delete</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <app-table-pager [length]="total" [pageSize]="pageSize" [pageIndex]="pageIndex" (pageIndexChange)="pageIndex=$event; load()"></app-table-pager>
+      <ng-template #empty><app-empty-state *ngIf="!loading"></app-empty-state></ng-template>
+    </section>
   </div>
 
-  <div class="app-card">
-    <div class="app-table-wrap" *ngIf="users.length; else empty">
-      <table class="app-data-table">
-        <thead>
-          <tr>
-            <th>{{ 'AUTH.USERNAME' | translate }}</th>
-            <th>{{ 'CUSTOMERS.NAME' | translate }}</th>
-            <th>{{ 'USERS.ROLES' | translate }}</th>
-            <th>{{ 'COMMON.STATUS' | translate }}</th>
-            <th *ngIf="isAdmin">{{ 'COMMON.ACTIONS' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let u of users">
-            <td>{{ u.username }}</td>
-            <td>{{ u.fullName || u.email }}</td>
-            <td>{{ rolesLabel(u) }}</td>
-            <td>{{ (u.active ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}</td>
-            <td *ngIf="isAdmin" class="actions-cell">
-              <button mat-stroked-button type="button" (click)="openDialog(u)">{{ 'USERS.EDIT' | translate }}</button>
-              <button mat-stroked-button type="button" color="warn" (click)="deleteUser(u)">{{ 'COMMON.DELETE' | translate }}</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <app-table-pager [length]="total" [pageSize]="pageSize" [pageIndex]="pageIndex" (pageIndexChange)="pageIndex=$event; load()"></app-table-pager>
-    </div>
-    <ng-template #empty><app-empty-state *ngIf="!loading"></app-empty-state></ng-template>
-  </div>
   <app-loading-spinner *ngIf="loading" [contained]="true"></app-loading-spinner>
 </div>

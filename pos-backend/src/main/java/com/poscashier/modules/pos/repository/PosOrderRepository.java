@@ -20,13 +20,23 @@ public interface PosOrderRepository extends JpaRepository<PosOrder, Long> {
             SELECT o FROM PosOrder o
             WHERE (:branchId IS NULL OR o.branchId = :branchId)
               AND (:status IS NULL OR o.status = :status)
-              AND (:q IS NULL OR :q = '' OR LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :q, '%')))
+              AND LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :q, '%'))
             ORDER BY o.createdAt DESC
             """)
     Page<PosOrder> search(@Param("branchId") Long branchId,
                           @Param("status") OrderStatus status,
                           @Param("q") String q,
                           Pageable pageable);
+
+    @Query("""
+            SELECT o FROM PosOrder o
+            WHERE (:branchId IS NULL OR o.branchId = :branchId)
+              AND (:status IS NULL OR o.status = :status)
+            ORDER BY o.createdAt DESC
+            """)
+    Page<PosOrder> searchNoQuery(@Param("branchId") Long branchId,
+                                 @Param("status") OrderStatus status,
+                                 Pageable pageable);
 
     @Query("""
             SELECT o FROM PosOrder o
@@ -60,4 +70,11 @@ public interface PosOrderRepository extends JpaRepository<PosOrder, Long> {
             ORDER BY o.createdAt ASC
             """)
     List<PosOrder> findKitchenQueue(@Param("branchId") Long branchId);
+
+    @Query("""
+            SELECT COUNT(o) FROM PosOrder o
+            WHERE o.status = com.poscashier.shared.enums.OrderStatus.HELD
+              AND (:branchId IS NULL OR o.branchId = :branchId)
+            """)
+    long countHeldOrders(@Param("branchId") Long branchId);
 }

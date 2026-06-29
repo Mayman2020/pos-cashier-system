@@ -20,7 +20,14 @@
     "TAXES": "Taxes",
     "DISCOUNTS": "Discounts",
     "KITCHEN": "Kitchen Display",
-    "SETTINGS": "Settings"
+    "SETTINGS": "Settings",
+    "UNITS": "Units",
+    "PURCHASE_ORDERS": "Purchase Orders",
+    "EXPENSES": "Expenses",
+    "AUDIT": "Audit Log",
+    "PERMISSIONS": "Permissions",
+    "LOOKUPS": "Lookups",
+    "PROFILE": "My Profile"
   },
   "ROLE": {
     "ADMIN": "Administrator",
@@ -57,16 +64,20 @@
     "ALL": "All",
     "NONE": "—",
     "YES": "Yes",
-    "NO": "No"
-  },
-  "LANG": {
-    "AR": "Arabic",
-    "EN": "English"
+    "NO": "No",
+    "USER": "User",
+    "TYPE": "Type"
   },
   "ACTIONS": {
     "CANCEL": "Cancel",
     "SAVE": "Save",
-    "CONFIRM": "Confirm"
+    "CONFIRM": "Confirm",
+    "EDIT": "Edit",
+    "CLOSE": "Close"
+  },
+  "LANG": {
+    "AR": "Arabic",
+    "EN": "English"
   },
   "DASHBOARD": {
     "TITLE": "Dashboard",
@@ -78,7 +89,10 @@
     "ACTIVE_PRODUCTS": "Active products",
     "ACTIVE_CUSTOMERS": "Active customers",
     "LOW_STOCK_ALERT": "Low stock alert",
-    "VIEW_INVENTORY": "View inventory"
+    "VIEW_INVENTORY": "View inventory",
+    "HELD_ORDERS": "Held orders",
+    "PAYMENT_SPLIT": "Today's payment split",
+    "QUICK_ACTIONS": "Quick actions"
   },
   "POS": {
     "ALL_CATEGORIES": "All",
@@ -102,6 +116,9 @@
     "SEARCH_BARCODE": "Search name, SKU, or scan barcode",
     "SHIFT_REQUIRED": "Open a shift before selling",
     "OPEN_SHIFT_HINT": "Enter opening cash and open your shift to start POS.",
+    "OUT_OF_STOCK": "Product is out of stock",
+    "INSUFFICIENT_STOCK": "Requested quantity exceeds available stock",
+    "SELECT_VARIANT": "Select variant",
     "ORDER_TYPE": "Order type",
     "TYPE_RETAIL": "Retail",
     "TYPE_DINE_IN": "Dine-in",
@@ -119,13 +136,27 @@
     "DISCOUNT_CODE": "Discount code",
     "MANUAL_DISCOUNT": "Manual discount amount",
     "KITCHEN_STATUS": "Kitchen status",
-    "THANK_YOU": "Thank you"
+    "THANK_YOU": "Thank you",
+    "LOYALTY_REDEEM": "Redeem loyalty points",
+    "LOYALTY_BALANCE": "Available points",
+    "CART_EMPTY": "Cart is empty — add products to start",
+    "SEARCH_PLACEHOLDER": "Search by product name or barcode",
+    "FULLSCREEN": "Full screen",
+    "DRAWER_OPENED": "Cash drawer open command sent",
+    "QA_NEW_CUSTOMER": "New customer",
+    "QA_NEW_PRODUCT": "New product",
+    "QA_OPEN_DRAWER": "Open cash drawer",
+    "QA_REFUND": "Return",
+    "KEYPAD_ENTER": "Enter",
+    "SAVE_DRAFT": "Save as draft",
+    "MIXED_MISMATCH": "Cash plus card must equal the total"
   },
   "PAYMENT": {
     "CASH": "Cash",
     "CARD": "Card",
     "MIXED": "Mixed",
-    "OTHER": "Other"
+    "OTHER": "Other",
+    "WALLET": "Wallet"
   },
   "PRODUCTS": {
     "TITLE": "Products",
@@ -141,6 +172,13 @@
     "TRACK_STOCK": "Track stock",
     "BARCODE": "Barcode",
     "TAX_RATE": "Tax rate (%)",
+    "DESCRIPTION": "Description",
+    "IMAGE": "Product image",
+    "TAB_INFO": "Info",
+    "TAB_VARIANTS": "Variants",
+    "TAB_MODIFIERS": "Modifiers",
+    "ADD_VARIANT": "Add variant",
+    "ADD_MODIFIER": "Add modifier",
     "DELETE_MSG": "Delete this product?"
   },
   "CATEGORIES": {
@@ -162,6 +200,8 @@
     "STOCK_IN": "Stock in",
     "ADJUST": "Adjust",
     "TRANSFER": "Transfer",
+    "INVOICE_NO": "Invoice number",
+    "INVOICE_DATE": "Invoice date",
     "MOVEMENTS": "Movements",
     "TYPE": "Type",
     "TO_BRANCH": "To branch",
@@ -204,7 +244,16 @@
     "REFUND_TITLE": "Refund order",
     "REFUND_MSG": "Refund this paid order and restore stock?",
     "ORDER_TYPE": "Order type",
-    "KITCHEN_STATUS": "Kitchen status"
+    "KITCHEN_STATUS": "Kitchen status",
+    "DETAIL": "Details",
+    "ITEMS": "Items",
+    "NOTES": "Notes",
+    "ORDER_NOTE": "Order note",
+    "REFUND_REASON": "Refund reason",
+    "REFUND_QTY": "Refund qty",
+    "PARTIAL_REFUND": "Partial refund",
+    "FULL_REFUND": "Full refund",
+    "RESUME": "Resume"
   },
   "SHIFTS": {
     "TITLE": "Shifts",
@@ -221,7 +270,23 @@
     "CLOSED": "Shift closed",
     "CURRENT_OPEN": "Current open shift",
     "STATE_OPEN": "Open",
-    "STATE_CLOSED": "Closed"
+    "STATE_CLOSED": "Closed",
+    "BREAKDOWN": "Drawer breakdown",
+    "CASH_SALES": "Cash sales",
+    "CARD_SALES": "Card sales",
+    "REFUNDS_CASH": "Cash refunds",
+    "PAYOUTS": "Payouts",
+    "EXPECTED_CASH": "Expected cash",
+    "VARIANCE": "Variance",
+    "DRAWER_MOVEMENTS": "Drawer movements",
+    "PAYOUT_AMOUNT": "Payout amount",
+    "RECORD_PAYOUT": "Record payout",
+    "MOVEMENT_OPENING": "Opening",
+    "MOVEMENT_SALE": "Sale",
+    "MOVEMENT_REFUND": "Refund",
+    "MOVEMENT_PAYOUT": "Payout",
+    "MOVEMENT_EXPENSE": "Expense",
+    "MOVEMENT_CLOSING": "Closing"
   },
   "REPORTS": {
     "TITLE": "Reports",
@@ -249,12 +314,38 @@
   "SETTINGS": {
     "TITLE": "Settings",
     "SUBTITLE": "System configuration",
+    "TAB_GENERAL": "General",
+    "TAB_POS": "Point of Sale",
+    "TAB_MODES": "Operating modes",
+    "TAB_LOYALTY": "Loyalty",
     "KEY_BUSINESS_NAME": "Business name",
     "KEY_CURRENCY": "Currency",
     "KEY_TAX_INCLUSIVE": "Tax-inclusive prices",
     "KEY_LOW_STOCK_ALERT": "Low stock alerts",
     "KEY_RESTAURANT_MODE": "Restaurant mode",
-    "KEY_SUPERMARKET_MODE": "Supermarket mode"
+    "KEY_SUPERMARKET_MODE": "Supermarket mode",
+    "KEYS": {
+      "business_name": "Business name",
+      "currency": "Currency",
+      "tax_inclusive": "Tax-inclusive prices",
+      "low_stock_alert": "Low stock alerts",
+      "restaurant_mode": "Restaurant mode",
+      "supermarket_mode": "Supermarket mode",
+      "loyalty_points_per_currency": "Currency per loyalty point",
+      "loyalty_redeem_value": "Redeem value per point",
+      "cash_variance_threshold": "Cash variance warning threshold",
+      "allow_manual_discount": "Allow manual discount"
+    }
+  },
+  "UNITS": {
+    "TITLE": "Units",
+    "SUBTITLE": "Manage product measurement units",
+    "CREATE": "Add unit",
+    "EDIT": "Edit unit",
+    "CODE": "Code",
+    "NAME": "Name",
+    "SYMBOL": "Symbol",
+    "DELETE_MSG": "Delete this unit?"
   },
   "USERS": {
     "TITLE": "Users",
@@ -262,9 +353,46 @@
     "ADD": "Add user",
     "CREATE": "Create user",
     "EDIT": "Edit user",
+    "FULL_NAME": "Full name",
     "PASSWORD": "Password",
     "ROLES": "Roles",
     "DELETE_MSG": "Delete this user?"
+  },
+  "PERMISSIONS": {
+    "TITLE": "Permissions",
+    "SUBTITLE": "Manage role permissions per module",
+    "SELECT_ROLE": "Select role",
+    "MODULE": "Module",
+    "VIEW": "View",
+    "CREATE": "Create",
+    "EDIT": "Edit",
+    "DELETE": "Delete"
+  },
+  "LOOKUPS": {
+    "TITLE": "Lookup Management",
+    "SUBTITLE": "Manage reference data for POS modules",
+    "NEW": "Add lookup",
+    "CODE": "Code",
+    "NAME_AR": "Arabic name",
+    "NAME_EN": "English name",
+    "SORT_ORDER": "Sort order",
+    "ACTIVE": "Active",
+    "INACTIVE": "Inactive",
+    "DELETE_MSG": "Delete this lookup item?",
+    "TAB_ORDER_CHANNEL": "Order Channels",
+    "TAB_PAYMENT": "Payment Methods",
+    "TAB_TABLE_ZONE": "Table Zones",
+    "TAB_INVENTORY_UNIT": "Inventory Units",
+    "TAB_EXPENSE_TYPE": "Expense Types"
+  },
+  "PROFILE": {
+    "TITLE": "Profile",
+    "SUBTITLE": "Account and password settings",
+    "ACCOUNT": "Account details",
+    "CHANGE_PASSWORD": "Change password",
+    "CURRENT_PASSWORD": "Current password",
+    "NEW_PASSWORD": "New password",
+    "CONFIRM_PASSWORD": "Confirm password"
   },
   "BRANCHES": {
     "TITLE": "Branches",
@@ -298,7 +426,8 @@
     "CODE": "Code",
     "NAME": "Name",
     "RATE": "Rate (%)",
-    "DEFAULT": "Default tax"
+    "DEFAULT": "Default tax",
+    "DELETE_MSG": "Deactivate this tax?"
   },
   "DISCOUNTS": {
     "TITLE": "Discounts",
@@ -311,7 +440,8 @@
     "TYPE": "Type",
     "PERCENT": "Percent",
     "FIXED": "Fixed amount",
-    "VALUE": "Value"
+    "VALUE": "Value",
+    "DELETE_MSG": "Deactivate this discount?"
   },
   "KITCHEN": {
     "TITLE": "Kitchen Display",
@@ -329,7 +459,49 @@
     "SERVED": "Served",
     "PAID": "Paid",
     "CANCELLED": "Cancelled",
-    "REFUNDED": "Refunded"
+    "REFUNDED": "Refunded",
+    "PARTIALLY_REFUNDED": "Partially refunded"
+  },
+  "PO": {
+    "TITLE": "Purchase Orders",
+    "SUBTITLE": "Create and receive supplier orders",
+    "ADD": "New PO",
+    "CREATE": "Create PO",
+    "EDIT": "Edit PO",
+    "ORDER_DATE": "Order date",
+    "EXPECTED_DATE": "Expected date",
+    "ITEMS": "Line items",
+    "ADD_ITEM": "Add line",
+    "RECEIVE": "Receive stock",
+    "RECEIVED_MSG": "Stock received from PO",
+    "CANCEL_TITLE": "Cancel PO",
+    "CANCEL_MSG": "Cancel this purchase order?",
+    "STATUS_DRAFT": "Draft",
+    "STATUS_ORDERED": "Ordered",
+    "STATUS_RECEIVED": "Received",
+    "STATUS_CANCELLED": "Cancelled"
+  },
+  "EXPENSES": {
+    "TITLE": "Expenses",
+    "SUBTITLE": "Cash drawer payouts and expenses",
+    "RECORD": "Record expense",
+    "AMOUNT": "Amount",
+    "RECORDED": "Expense recorded"
+  },
+  "AUDIT": {
+    "TITLE": "Audit Log",
+    "SUBTITLE": "System activity history",
+    "ACTION": "Action",
+    "ENTITY": "Entity",
+    "DETAILS": "Details"
+  },
+  "LOYALTY": {
+    "TITLE": "Loyalty",
+    "BALANCE": "Points balance",
+    "POINTS": "Points",
+    "ADJUST": "Adjust",
+    "ADJUST_POINTS": "Points to add/remove",
+    "ADJUSTED": "Points updated"
   },
   "ERRORS": {
     "GENERIC": "Something went wrong. Please try again."

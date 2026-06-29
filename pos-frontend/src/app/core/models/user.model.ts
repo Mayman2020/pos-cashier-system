@@ -1,4 +1,15 @@
 export type UserRole = 'ADMIN' | 'MANAGER' | 'CASHIER';
+export const USER_ROLE_VALUES: UserRole[] = ['ADMIN', 'MANAGER', 'CASHIER'];
+export type PermissionAction = 'view' | 'create' | 'edit' | 'delete' | 'menu';
+export interface ModulePermission {
+  enabled?: boolean;
+  view?: boolean;
+  create?: boolean;
+  edit?: boolean;
+  delete?: boolean;
+  menu?: boolean;
+}
+export type PermissionMap = Record<string, ModulePermission>;
 
 export interface LoginRequest {
   username: string;
@@ -21,6 +32,7 @@ export interface UserDto {
   branchId?: number;
   roles?: string[];
   mustChangePassword?: boolean;
+  permissions?: PermissionMap;
 }
 
 export interface CurrentUser {
@@ -32,5 +44,6 @@ export interface CurrentUser {
   role: UserRole;
   roles: UserRole[];
   mustChangePassword?: boolean;
+  permissions?: PermissionMap;
   initials?: string;
 }

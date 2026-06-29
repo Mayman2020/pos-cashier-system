@@ -1,0 +1,6 @@
+<nav class="pos-mobile-nav">
+  <a *ngFor="let item of items" [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: item.route === '/admin/pos' }">
+    <span class="material-icons">{{ item.icon }}</span>
+    <span class="label">{{ item.labelKey | translate }}</span>
+  </a>
+</nav>

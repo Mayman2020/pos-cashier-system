@@ -19,7 +19,13 @@ public class UpdateOrderRequest {
 
     private BigDecimal discountAmount;
 
+    private String discountCode;
+
+    private Integer loyaltyPointsRedeemed;
+
     private String notes;
+
+    private List<OrderNoteRequest> orderNotes;
 
     @NotEmpty
     @Valid

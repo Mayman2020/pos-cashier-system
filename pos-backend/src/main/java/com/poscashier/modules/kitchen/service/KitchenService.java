@@ -6,6 +6,7 @@ import com.poscashier.modules.pos.entity.PosOrderItem;
 import com.poscashier.modules.pos.repository.PosOrderItemRepository;
 import com.poscashier.modules.pos.repository.PosOrderRepository;
 import com.poscashier.shared.exception.AppException;
+import com.poscashier.shared.util.BranchContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,8 @@ public class KitchenService {
 
     @Transactional(readOnly = true)
     public List<OrderResponse> queue(Long branchId) {
-        return orderRepository.findKitchenQueue(branchId).stream()
+        Long resolved = BranchContext.resolveBranchId(branchId);
+        return orderRepository.findKitchenQueue(resolved).stream()
                 .map(o -> OrderResponse.from(o, itemRepository.findByOrderId(o.getId())))
                 .toList();
     }
@@ -37,6 +39,7 @@ public class KitchenService {
         }
         PosOrder order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException("Order not found", HttpStatus.NOT_FOUND));
+        BranchContext.assertBranchAccess(order.getBranchId());
         if (order.getKitchenStatus() == null) {
             throw new AppException("Order is not a kitchen order", HttpStatus.BAD_REQUEST);
         }

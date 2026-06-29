@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>{{ 'SHIFTS.CLOSE' | translate }} #{{ shift.id }}</h2>
+<mat-dialog-content>
+  <div class="close-grid">
+    <section class="breakdown">
+      <h3>{{ 'SHIFTS.BREAKDOWN' | translate }}</h3>
+      <div class="row"><span>{{ 'SHIFTS.OPENING_CASH' | translate }}</span><strong>{{ openingCash | number:'1.2-2' }}</strong></div>
+      <div class="row"><span>{{ 'SHIFTS.CASH_SALES' | translate }}</span><strong>{{ cashSales | number:'1.2-2' }}</strong></div>
+      <div class="row"><span>{{ 'SHIFTS.CARD_SALES' | translate }}</span><strong>{{ cardSales | number:'1.2-2' }}</strong></div>
+      <div class="row"><span>{{ 'SHIFTS.REFUNDS_CASH' | translate }}</span><strong>-{{ refundsCash | number:'1.2-2' }}</strong></div>
+      <div class="row"><span>{{ 'SHIFTS.PAYOUTS' | translate }}</span><strong>-{{ payouts | number:'1.2-2' }}</strong></div>
+      <div class="row total"><span>{{ 'SHIFTS.EXPECTED_CASH' | translate }}</span><strong>{{ expectedCash | number:'1.2-2' }}</strong></div>
+
+      <div class="payout-row" *ngIf="shift.status === 'OPEN' && canRecordPayout">
+        <input type="number" [(ngModel)]="payoutAmount" [placeholder]="'SHIFTS.PAYOUT_AMOUNT' | translate" />
+        <button mat-stroked-button type="button" (click)="recordPayout()">{{ 'SHIFTS.RECORD_PAYOUT' | translate }}</button>
+      </div>
+
+      <div class="movements" *ngIf="movements.length">
+        <h4>{{ 'SHIFTS.DRAWER_MOVEMENTS' | translate }}</h4>
+        <div class="mov" *ngFor="let m of movements">
+          <span>{{ ('SHIFTS.MOVEMENT_' + m.movementType) | translate }}</span>
+          <span>{{ m.amount | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="count-panel">
+      <h3>{{ 'SHIFTS.ACTUAL_CASH' | translate }}</h3>
+      <div class="cash-display">{{ actualCash | number:'1.2-2' }}</div>
+      <div class="keypad">
+        <button type="button" class="key" *ngFor="let k of keys" (click)="tapKey(k)">{{ k }}</button>
+      </div>
+      <div class="variance" [class.warn]="varianceWarning">
+        {{ 'SHIFTS.VARIANCE' | translate }}: {{ variance | number:'1.2-2' }}
+      </div>
+      <textarea [(ngModel)]="notes" rows="2" [placeholder]="'COMMON.NOTES' | translate"></textarea>
+    </section>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="ref.close()">{{ 'ACTIONS.CANCEL' | translate }}</button>
+  <button mat-flat-button type="button" (click)="confirm()">{{ 'SHIFTS.CONFIRM_CLOSE' | translate }}</button>
+</mat-dialog-actions>

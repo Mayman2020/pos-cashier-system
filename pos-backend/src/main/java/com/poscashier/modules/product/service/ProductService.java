@@ -4,6 +4,7 @@ import com.poscashier.modules.product.dto.ProductRequest;
 import com.poscashier.modules.product.dto.ProductResponse;
 import com.poscashier.modules.product.entity.Product;
 import com.poscashier.modules.product.repository.ProductRepository;
+import com.poscashier.modules.tax.repository.TaxRepository;
 import com.poscashier.shared.exception.AppException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,10 +19,15 @@ import java.math.BigDecimal;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final TaxRepository taxRepository;
 
     @Transactional(readOnly = true)
     public Page<ProductResponse> list(String q, Pageable pageable) {
-        return productRepository.search(q, pageable).map(ProductResponse::from);
+        String query = q == null ? null : q.trim();
+        if (query == null || query.isEmpty()) {
+            return productRepository.findAll(pageable).map(ProductResponse::from);
+        }
+        return productRepository.search(query, pageable).map(ProductResponse::from);
     }
 
     @Transactional(readOnly = true)
@@ -67,7 +73,14 @@ public class ProductService {
         product.setUnitId(request.getUnitId());
         product.setCostPrice(request.getCostPrice());
         product.setSellingPrice(request.getSellingPrice());
-        product.setTaxRate(request.getTaxRate() != null ? request.getTaxRate() : BigDecimal.ZERO);
+        if (request.getTaxId() != null) {
+            product.setTaxId(request.getTaxId());
+            taxRepository.findById(request.getTaxId()).ifPresent(t -> product.setTaxRate(t.getRate()));
+        } else if (request.getTaxRate() != null) {
+            product.setTaxRate(request.getTaxRate());
+        } else if (product.getTaxRate() == null) {
+            product.setTaxRate(BigDecimal.ZERO);
+        }
         if (request.getTrackStock() != null) {
             product.setTrackStock(request.getTrackStock());
         }

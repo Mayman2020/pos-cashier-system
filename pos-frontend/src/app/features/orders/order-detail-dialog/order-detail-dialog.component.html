@@ -1,0 +1,49 @@
+<h2 mat-dialog-title>{{ 'ORDERS.DETAIL' | translate }} {{ order?.orderNumber }}</h2>
+<mat-dialog-content *ngIf="order && !loading">
+  <div class="detail-grid">
+    <div><span class="lbl">{{ 'COMMON.STATUS' | translate }}</span><span class="status-badge" [attr.data-status]="order.status">{{ ('STATUS.' + order.status) | translate }}</span></div>
+    <div><span class="lbl">{{ 'POS.TOTAL' | translate }}</span><strong>{{ fmtMoney(order.totalAmount) }}</strong></div>
+    <div><span class="lbl">{{ 'POS.SUBTOTAL' | translate }}</span>{{ fmtMoney(order.subtotal) }}</div>
+    <div><span class="lbl">{{ 'POS.TAX' | translate }}</span>{{ fmtMoney(order.taxAmount) }}</div>
+    <div><span class="lbl">{{ 'POS.DISCOUNT' | translate }}</span>{{ fmtMoney(order.discountAmount) }}</div>
+    <div><span class="lbl">{{ 'COMMON.DATE' | translate }}</span>{{ order.createdAt }}</div>
+  </div>
+
+  <h3>{{ 'ORDERS.ITEMS' | translate }}</h3>
+  <table class="items-table">
+    <thead><tr><th>{{ 'PRODUCTS.NAME' | translate }}</th><th>{{ 'INVENTORY.QTY' | translate }}</th><th>{{ 'POS.TOTAL' | translate }}</th><th *ngIf="canRefund">{{ 'ORDERS.REFUND_QTY' | translate }}</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let item of order.items">
+        <td>{{ item.productName }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ fmtMoney(item.lineTotal) }}</td>
+        <td *ngIf="canRefund && item.id != null">
+          <input type="number" min="0" [max]="item.quantity" [(ngModel)]="refundSelections[item.id]" />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="order.orderNotes?.length" class="notes-block">
+    <h3>{{ 'ORDERS.NOTES' | translate }}</h3>
+    <p *ngFor="let n of order.orderNotes">{{ n.note }}</p>
+  </div>
+
+  <div class="refund-panel" *ngIf="canRefund">
+    <mat-form-field appearance="outline" class="full"><mat-label>{{ 'ORDERS.REFUND_REASON' | translate }}</mat-label><input matInput [(ngModel)]="refundReason" /></mat-form-field>
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>{{ 'POS.PAYMENT_METHOD' | translate }}</mat-label>
+      <mat-select [(ngModel)]="refundMethod">
+        <mat-option value="CASH">{{ 'PAYMENT.CASH' | translate }}</mat-option>
+        <mat-option value="CARD">{{ 'PAYMENT.CARD' | translate }}</mat-option>
+        <mat-option value="MIXED">{{ 'PAYMENT.MIXED' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end" *ngIf="order">
+  <button mat-stroked-button type="button" (click)="viewReceipt()" *ngIf="order.status === 'PAID' || order.status === 'REFUNDED'">{{ 'POS.RECEIPT' | translate }}</button>
+  <button mat-stroked-button type="button" (click)="ref.close()">{{ 'ACTIONS.CANCEL' | translate }}</button>
+  <button mat-stroked-button type="button" color="warn" *ngIf="canRefund" (click)="partialRefund()">{{ 'ORDERS.PARTIAL_REFUND' | translate }}</button>
+  <button mat-flat-button type="button" color="warn" *ngIf="canRefund" (click)="fullRefund()">{{ 'ORDERS.FULL_REFUND' | translate }}</button>
+</mat-dialog-actions>

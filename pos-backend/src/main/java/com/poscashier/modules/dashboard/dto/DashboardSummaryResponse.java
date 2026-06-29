@@ -13,7 +13,10 @@ public class DashboardSummaryResponse {
 
     private long todayOrders;
     private BigDecimal todaySales;
+    private BigDecimal todayCashSales;
+    private BigDecimal todayCardSales;
     private long openShifts;
+    private long heldOrders;
     private long lowStockItems;
     private long activeProducts;
     private long activeCustomers;

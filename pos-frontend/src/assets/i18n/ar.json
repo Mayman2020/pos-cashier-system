@@ -20,7 +20,11 @@
     "TAXES": "الضرائب",
     "DISCOUNTS": "الخصومات",
     "KITCHEN": "شاشة المطبخ",
-    "SETTINGS": "الإعدادات"
+    "SETTINGS": "الإعدادات",
+    "UNITS": "وحدات القياس",
+    "PURCHASE_ORDERS": "أوامر الشراء",
+    "EXPENSES": "المصروفات",
+    "AUDIT": "سجل التدقيق"
   },
   "ROLE": {
     "ADMIN": "مدير النظام",
@@ -78,11 +82,14 @@
     "ACTIVE_PRODUCTS": "منتجات نشطة",
     "ACTIVE_CUSTOMERS": "عملاء نشطون",
     "LOW_STOCK_ALERT": "تنبيه مخزون منخفض",
-    "VIEW_INVENTORY": "عرض المخزون"
+    "VIEW_INVENTORY": "عرض المخزون",
+    "HELD_ORDERS": "طلبات معلّقة",
+    "PAYMENT_SPLIT": "توزيع طرق الدفع اليوم",
+    "QUICK_ACTIONS": "إجراءات سريعة"
   },
   "POS": {
     "ALL_CATEGORIES": "الكل",
-    "CART": "السلة",
+    "CART": "سلة المشتريات",
     "SUBTOTAL": "المجموع الفرعي",
     "TAX": "الضريبة",
     "DISCOUNT": "الخصم",
@@ -102,6 +109,9 @@
     "SEARCH_BARCODE": "بحث بالاسم أو SKU أو مسح الباركود",
     "SHIFT_REQUIRED": "يجب فتح وردية قبل البيع",
     "OPEN_SHIFT_HINT": "أدخل الرصيد الافتتاحي وافتح ورديتك لبدء البيع.",
+    "OUT_OF_STOCK": "المنتج غير متوفر في المخزون",
+    "INSUFFICIENT_STOCK": "الكمية المطلوبة تتجاوز المخزون المتاح",
+    "SELECT_VARIANT": "اختر المتغير",
     "ORDER_TYPE": "نوع الطلب",
     "TYPE_RETAIL": "تجزئة",
     "TYPE_DINE_IN": "داخل المطعم",
@@ -119,13 +129,27 @@
     "DISCOUNT_CODE": "كود الخصم",
     "MANUAL_DISCOUNT": "مبلغ الخصم اليدوي",
     "KITCHEN_STATUS": "حالة المطبخ",
-    "THANK_YOU": "شكراً لزيارتكم"
+    "THANK_YOU": "شكراً لزيارتكم",
+    "LOYALTY_REDEEM": "استبدال نقاط الولاء",
+    "LOYALTY_BALANCE": "النقاط المتاحة",
+    "CART_EMPTY": "السلة فارغة — اختر منتجات لبدء البيع",
+    "SEARCH_PLACEHOLDER": "ابحث عن منتج بالاسم أو الباركود",
+    "FULLSCREEN": "شاشة كاملة",
+    "DRAWER_OPENED": "تم إرسال أمر فتح درج النقدية",
+    "QA_NEW_CUSTOMER": "عميل جديد",
+    "QA_NEW_PRODUCT": "منتج جديد",
+    "QA_OPEN_DRAWER": "فتح درج النقدية",
+    "QA_REFUND": "مرتجع",
+    "KEYPAD_ENTER": "إدخال",
+    "SAVE_DRAFT": "حفظ كمسودة",
+    "MIXED_MISMATCH": "مجموع النقدي والبطاقة يجب أن يساوي الإجمالي"
   },
   "PAYMENT": {
     "CASH": "نقدي",
     "CARD": "بطاقة",
     "MIXED": "مختلط",
-    "OTHER": "أخرى"
+    "OTHER": "أخرى",
+    "WALLET": "محفظة"
   },
   "PRODUCTS": {
     "TITLE": "المنتجات",
@@ -141,6 +165,13 @@
     "TRACK_STOCK": "تتبع المخزون",
     "BARCODE": "الباركود",
     "TAX_RATE": "نسبة الضريبة (%)",
+    "DESCRIPTION": "الوصف",
+    "IMAGE": "صورة المنتج",
+    "TAB_INFO": "معلومات",
+    "TAB_VARIANTS": "المتغيرات",
+    "TAB_MODIFIERS": "الإضافات",
+    "ADD_VARIANT": "إضافة متغير",
+    "ADD_MODIFIER": "إضافة معدّل",
     "DELETE_MSG": "حذف هذا المنتج؟"
   },
   "CATEGORIES": {
@@ -162,6 +193,8 @@
     "STOCK_IN": "إدخال مخزون",
     "ADJUST": "تعديل",
     "TRANSFER": "نقل",
+    "INVOICE_NO": "رقم الفاتورة",
+    "INVOICE_DATE": "تاريخ الفاتورة",
     "MOVEMENTS": "الحركات",
     "TYPE": "النوع",
     "TO_BRANCH": "إلى فرع",
@@ -204,7 +237,16 @@
     "REFUND_TITLE": "استرداد الطلب",
     "REFUND_MSG": "استرداد هذا الطلب المدفوع وإعادة المخزون؟",
     "ORDER_TYPE": "نوع الطلب",
-    "KITCHEN_STATUS": "حالة المطبخ"
+    "KITCHEN_STATUS": "حالة المطبخ",
+    "DETAIL": "تفاصيل",
+    "ITEMS": "البنود",
+    "NOTES": "ملاحظات",
+    "ORDER_NOTE": "ملاحظة الطلب",
+    "REFUND_REASON": "سبب الاسترداد",
+    "REFUND_QTY": "كمية الاسترداد",
+    "PARTIAL_REFUND": "استرداد جزئي",
+    "FULL_REFUND": "استرداد كامل",
+    "RESUME": "استئناف"
   },
   "SHIFTS": {
     "TITLE": "الورديات",
@@ -221,7 +263,23 @@
     "CLOSED": "تم إغلاق الوردية",
     "CURRENT_OPEN": "الوردية المفتوحة حالياً",
     "STATE_OPEN": "مفتوحة",
-    "STATE_CLOSED": "مغلقة"
+    "STATE_CLOSED": "مغلقة",
+    "BREAKDOWN": "تفصيل الدرج",
+    "CASH_SALES": "مبيعات نقدية",
+    "CARD_SALES": "مبيعات بطاقة",
+    "REFUNDS_CASH": "مرتجعات نقدية",
+    "PAYOUTS": "سحوبات",
+    "EXPECTED_CASH": "النقد المتوقع",
+    "VARIANCE": "الفرق",
+    "DRAWER_MOVEMENTS": "حركات الدرج",
+    "PAYOUT_AMOUNT": "مبلغ السحب",
+    "RECORD_PAYOUT": "تسجيل سحب",
+    "MOVEMENT_OPENING": "افتتاح",
+    "MOVEMENT_SALE": "بيع",
+    "MOVEMENT_REFUND": "مرتجع",
+    "MOVEMENT_PAYOUT": "سحب",
+    "MOVEMENT_EXPENSE": "مصروف",
+    "MOVEMENT_CLOSING": "إغلاق"
   },
   "REPORTS": {
     "TITLE": "التقارير",
@@ -249,12 +307,38 @@
   "SETTINGS": {
     "TITLE": "الإعدادات",
     "SUBTITLE": "إعدادات النظام",
+    "TAB_GENERAL": "عام",
+    "TAB_POS": "نقطة البيع",
+    "TAB_MODES": "أوضاع التشغيل",
+    "TAB_LOYALTY": "الولاء",
     "KEY_BUSINESS_NAME": "اسم المنشأة",
     "KEY_CURRENCY": "العملة",
     "KEY_TAX_INCLUSIVE": "الأسعار شاملة الضريبة",
     "KEY_LOW_STOCK_ALERT": "تنبيهات المخزون المنخفض",
     "KEY_RESTAURANT_MODE": "وضع المطعم",
-    "KEY_SUPERMARKET_MODE": "وضع المتجر"
+    "KEY_SUPERMARKET_MODE": "وضع المتجر",
+    "KEYS": {
+      "business_name": "اسم المنشأة",
+      "currency": "العملة",
+      "tax_inclusive": "الأسعار شاملة الضريبة",
+      "low_stock_alert": "تنبيهات المخزون المنخفض",
+      "restaurant_mode": "وضع المطعم",
+      "supermarket_mode": "وضع المتجر",
+      "loyalty_points_per_currency": "مبلغ العملة لكل نقطة ولاء",
+      "loyalty_redeem_value": "قيمة استبدال النقطة",
+      "cash_variance_threshold": "حد تحذير فرق النقدية",
+      "allow_manual_discount": "السماح بالخصم اليدوي"
+    }
+  },
+  "UNITS": {
+    "TITLE": "وحدات القياس",
+    "SUBTITLE": "إدارة وحدات قياس المنتجات",
+    "CREATE": "إضافة وحدة",
+    "EDIT": "تعديل وحدة",
+    "CODE": "الرمز",
+    "NAME": "الاسم",
+    "SYMBOL": "الرمز المختصر",
+    "DELETE_MSG": "حذف هذه الوحدة؟"
   },
   "USERS": {
     "TITLE": "المستخدمون",
@@ -329,7 +413,49 @@
     "SERVED": "تم التقديم",
     "PAID": "مدفوع",
     "CANCELLED": "ملغى",
-    "REFUNDED": "مسترد"
+    "REFUNDED": "مسترد",
+    "PARTIALLY_REFUNDED": "مسترد جزئياً"
+  },
+  "PO": {
+    "TITLE": "أوامر الشراء",
+    "SUBTITLE": "إنشاء واستلام أوامر الموردين",
+    "ADD": "أمر شراء جديد",
+    "CREATE": "إنشاء أمر شراء",
+    "EDIT": "تعديل أمر شراء",
+    "ORDER_DATE": "تاريخ الطلب",
+    "EXPECTED_DATE": "تاريخ التوريد المتوقع",
+    "ITEMS": "البنود",
+    "ADD_ITEM": "إضافة بند",
+    "RECEIVE": "استلام مخزون",
+    "RECEIVED_MSG": "تم استلام المخزون",
+    "CANCEL_TITLE": "إلغاء أمر الشراء",
+    "CANCEL_MSG": "إلغاء أمر الشراء هذا؟",
+    "STATUS_DRAFT": "مسودة",
+    "STATUS_ORDERED": "مُرسَل",
+    "STATUS_RECEIVED": "مُستلم",
+    "STATUS_CANCELLED": "ملغى"
+  },
+  "EXPENSES": {
+    "TITLE": "المصروفات",
+    "SUBTITLE": "صرف نقدي من الدرج",
+    "RECORD": "تسجيل مصروف",
+    "AMOUNT": "المبلغ",
+    "RECORDED": "تم تسجيل المصروف"
+  },
+  "AUDIT": {
+    "TITLE": "سجل التدقيق",
+    "SUBTITLE": "سجل نشاط النظام",
+    "ACTION": "الإجراء",
+    "ENTITY": "الكيان",
+    "DETAILS": "التفاصيل"
+  },
+  "LOYALTY": {
+    "TITLE": "الولاء",
+    "BALANCE": "رصيد النقاط",
+    "POINTS": "النقاط",
+    "ADJUST": "تعديل",
+    "ADJUST_POINTS": "نقاط للإضافة/الخصم",
+    "ADJUSTED": "تم تحديث النقاط"
   },
   "ERRORS": {
     "GENERIC": "حدث خطأ. يرجى المحاولة مرة أخرى."

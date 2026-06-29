@@ -5,8 +5,7 @@ import { ApiService } from './api.service';
 import { AppConstants } from '../constants/app-constants';
 import { TokenStorageService } from '../auth/token-storage.service';
 import { JwtUtils } from '../utils/jwt-utils';
-import { ApiResponse } from '../models/api-response.model';
-import { CurrentUser, LoginRequest, LoginResponse, UserDto, UserRole } from '../models/user.model';
+import { CurrentUser, LoginRequest, LoginResponse, PermissionMap, UserDto, UserRole } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -49,6 +48,15 @@ export class AuthService {
     return this.getCurrentUser()?.role ?? null;
   }
 
+  getPermissions(): PermissionMap {
+    return this.getCurrentUser()?.permissions ?? {};
+  }
+
+  updateStoredPermissions(permissions: PermissionMap): void {
+    const user = this.getCurrentUser();
+    if (user) this.tokenStorage.setUser({ ...user, permissions });
+  }
+
   hasRole(role: UserRole): boolean {
     const user = this.getCurrentUser();
     if (!user) return false;
@@ -68,9 +76,16 @@ export class AuthService {
   }
 
   getDashboardRoute(): string {
-    const role = this.getRole();
-    if (role === 'CASHIER') return '/admin/pos';
     return '/admin/dashboard';
+  }
+
+  mustChangePassword(): boolean {
+    return this.getCurrentUser()?.mustChangePassword === true;
+  }
+
+  clearMustChangePassword(): void {
+    const user = this.getCurrentUser();
+    if (user) this.tokenStorage.setUser({ ...user, mustChangePassword: false });
   }
 
   clearExpiredTokens(): void {
@@ -92,6 +107,7 @@ export class AuthService {
       role: primary,
       roles: roles.length ? roles : [primary],
       mustChangePassword: userDto.mustChangePassword ?? false,
+      permissions: userDto.permissions ?? {},
       initials: this.buildInitials(userDto.fullName || userDto.username),
     };
     this.tokenStorage.setUser(user);

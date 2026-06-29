@@ -36,8 +36,13 @@ public class OrderResponse {
     private LocalDateTime cancelledAt;
     private LocalDateTime createdAt;
     private List<OrderItemResponse> items;
+    private List<OrderNoteResponse> orderNotes;
 
     public static OrderResponse from(PosOrder order, List<PosOrderItem> items) {
+        return from(order, items, List.of());
+    }
+
+    public static OrderResponse from(PosOrder order, List<PosOrderItem> items, List<com.poscashier.modules.pos.entity.OrderNote> notes) {
         return OrderResponse.builder()
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
@@ -60,6 +65,7 @@ public class OrderResponse {
                 .cancelledAt(order.getCancelledAt())
                 .createdAt(order.getCreatedAt())
                 .items(items.stream().map(OrderItemResponse::from).toList())
+                .orderNotes(notes.stream().map(OrderNoteResponse::from).toList())
                 .build();
     }
 }

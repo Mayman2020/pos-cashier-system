@@ -44,6 +44,13 @@ public class InventoryController {
         return ResponseEntity.ok(ApiResponse.ok(inventoryService.lowStock(branchId)));
     }
 
+    @GetMapping("/availability")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','CASHIER')")
+    public ResponseEntity<ApiResponse<StockAvailabilityResponse>> availability(
+            @RequestParam Long branchId, @RequestParam Long productId) {
+        return ResponseEntity.ok(ApiResponse.ok(inventoryService.getAvailability(branchId, productId)));
+    }
+
     @PostMapping("/stock-in")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<ApiResponse<StockMovementResponse>> stockIn(@Valid @RequestBody StockInRequest request) {

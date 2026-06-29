@@ -9,6 +9,7 @@ import {
   PayOrderRequest,
   PosOrder,
   UpdateOrderRequest,
+  RefundOrderRequest,
 } from '../models/order.model';
 
 @Injectable({ providedIn: 'root' })
@@ -47,7 +48,7 @@ export class OrderService {
     return this.api.post<PosOrder>(AppConstants.API.POS_ORDER_RESUME(id), {});
   }
 
-  refund(id: number): Observable<PosOrder> {
-    return this.api.post<PosOrder>(AppConstants.API.POS_ORDER_REFUND(id), {});
+  refund(id: number, body?: RefundOrderRequest): Observable<PosOrder> {
+    return this.api.post<PosOrder>(AppConstants.API.POS_ORDER_REFUND(id), body ?? {});
   }
 }

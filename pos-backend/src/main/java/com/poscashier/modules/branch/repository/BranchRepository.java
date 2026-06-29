@@ -15,7 +15,7 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
 
     @Query("""
             SELECT b FROM Branch b
-            WHERE (:q IS NULL OR :q = '' OR LOWER(b.name) LIKE LOWER(CONCAT('%', :q, '%'))
+            WHERE (LOWER(b.name) LIKE LOWER(CONCAT('%', :q, '%'))
                 OR LOWER(b.code) LIKE LOWER(CONCAT('%', :q, '%')))
             """)
     Page<Branch> search(@Param("q") String q, Pageable pageable);

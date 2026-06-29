@@ -39,4 +39,11 @@ public class ModifierController {
             @PathVariable Long id, @Valid @RequestBody ModifierRequest request) {
         return ResponseEntity.ok(ApiResponse.ok(modifierService.update(id, request)));
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        modifierService.delete(id);
+        return ResponseEntity.ok(ApiResponse.ok(null));
+    }
 }

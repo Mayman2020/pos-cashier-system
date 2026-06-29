@@ -1,0 +1,19 @@
+<div class="app-page">
+  <app-page-header [title]="'AUDIT.TITLE' | translate" [subtitle]="'AUDIT.SUBTITLE' | translate"></app-page-header>
+  <div class="app-card">
+    <table class="app-data-table" *ngIf="logs.length">
+      <thead><tr><th>{{ 'COMMON.DATE' | translate }}</th><th>{{ 'AUDIT.ACTION' | translate }}</th><th>{{ 'AUDIT.ENTITY' | translate }}</th><th>{{ 'AUDIT.DETAILS' | translate }}</th><th>{{ 'COMMON.USER' | translate }}</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let log of logs">
+          <td>{{ log.createdAt | rmsDate:'datetime' }}</td>
+          <td>{{ log.action }}</td>
+          <td>{{ log.entityType }} #{{ log.entityId }}</td>
+          <td>{{ log.details }}</td>
+          <td>{{ log.username }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <app-table-pager [length]="total" [pageSize]="pageSize" [pageIndex]="pageIndex" (pageIndexChange)="pageIndex=$event; load()"></app-table-pager>
+  </div>
+  <app-loading-spinner *ngIf="loading" [contained]="true"></app-loading-spinner>
+</div>

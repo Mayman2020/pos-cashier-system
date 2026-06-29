@@ -9,6 +9,7 @@ export interface Product {
   costPrice: number;
   sellingPrice: number;
   taxRate?: number;
+  taxId?: number;
   trackStock?: boolean;
   lowStockThreshold?: number;
   active?: boolean;
@@ -27,6 +28,7 @@ export interface ProductRequest {
   costPrice: number;
   sellingPrice: number;
   taxRate?: number;
+  taxId?: number;
   trackStock?: boolean;
   lowStockThreshold?: number;
   active?: boolean;

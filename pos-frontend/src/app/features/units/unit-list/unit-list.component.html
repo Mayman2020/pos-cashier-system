@@ -1,0 +1,41 @@
+<div class="app-page">
+  <app-page-header [title]="'UNITS.TITLE' | translate" [subtitle]="'UNITS.SUBTITLE' | translate">
+    <button mat-flat-button type="button" (click)="openDialog()">{{ 'UNITS.CREATE' | translate }}</button>
+  </app-page-header>
+
+  <div class="app-card" *ngIf="!loading">
+    <div class="app-card-header">
+      <input [(ngModel)]="search" (keyup.enter)="load()" [placeholder]="'COMMON.SEARCH' | translate" />
+      <button mat-stroked-button type="button" (click)="load()">{{ 'COMMON.SEARCH' | translate }}</button>
+    </div>
+    <div class="app-table-wrap" *ngIf="units.length; else empty">
+      <table class="app-data-table">
+        <thead>
+          <tr>
+            <th>{{ 'UNITS.CODE' | translate }}</th>
+            <th>{{ 'UNITS.NAME' | translate }}</th>
+            <th>{{ 'UNITS.SYMBOL' | translate }}</th>
+            <th>{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of units">
+            <td>{{ u.code }}</td>
+            <td>{{ u.name }}</td>
+            <td>{{ u.symbol || '—' }}</td>
+            <td>
+              <button mat-stroked-button type="button" (click)="openDialog(u)">{{ 'PRODUCTS.EDIT' | translate }}</button>
+              <button mat-stroked-button type="button" class="danger" (click)="deleteUnit(u)">{{ 'COMMON.DELETE' | translate }}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <app-table-pager [length]="total" [pageIndex]="pageIndex" [pageSize]="pageSize" (pageIndexChange)="pageIndex = $event; load()"></app-table-pager>
+    </div>
+    <ng-template #empty>
+      <app-empty-state [message]="'COMMON.NO_DATA' | translate"></app-empty-state>
+    </ng-template>
+  </div>
+
+  <app-loading-spinner *ngIf="loading" [contained]="true"></app-loading-spinner>
+</div>

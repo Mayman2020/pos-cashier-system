@@ -9,12 +9,15 @@ import { TranslateModule } from '@ngx-translate/core';
 import { InventoryService } from '../../../core/services/inventory.service';
 import { ProductService } from '../../../core/services/product.service';
 import { BranchService } from '../../../core/services/branch.service';
+import { SupplierService } from '../../../core/services/supplier.service';
+import { BranchContextService } from '../../../core/services/branch-context.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { SnackService } from '../../../core/services/snack.service';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { InventoryBalance, StockMovement } from '../../../core/models/inventory.model';
 import { Product } from '../../../core/models/product.model';
 import { Branch } from '../../../core/models/branch.model';
+import { Supplier } from '../../../core/models/supplier.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { TablePagerComponent } from '../../../shared/components/table-pager/table-pager.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -37,6 +40,7 @@ export class InventoryPageComponent implements OnInit {
   movements: StockMovement[] = [];
   products: Product[] = [];
   branches: Branch[] = [];
+  suppliers: Supplier[] = [];
   total = 0;
   movTotal = 0;
   pageIndex = 0;
@@ -46,6 +50,9 @@ export class InventoryPageComponent implements OnInit {
   readonly stockInForm = this.fb.nonNullable.group({
     productId: [null as number | null],
     quantity: [1],
+    supplierId: [null as number | null],
+    invoiceNo: [''],
+    invoiceDate: [''],
     notes: [''],
   });
 
@@ -66,6 +73,8 @@ export class InventoryPageComponent implements OnInit {
     private readonly inventoryService: InventoryService,
     private readonly productService: ProductService,
     private readonly branchService: BranchService,
+    private readonly supplierService: SupplierService,
+    private readonly branchContext: BranchContextService,
     private readonly auth: AuthService,
     private readonly fb: FormBuilder,
     private readonly snack: SnackService,
@@ -83,6 +92,7 @@ export class InventoryPageComponent implements OnInit {
         }
       },
     });
+    this.supplierService.list(0, 100).subscribe({ next: (p) => (this.suppliers = p.content) });
     this.loadBalances();
     this.loadLowStock();
     this.loadMovements();
@@ -100,7 +110,7 @@ export class InventoryPageComponent implements OnInit {
   }
 
   get branchId(): number {
-    return this.auth.getCurrentUser()?.branchId ?? 1;
+    return this.branchContext.getBranchId();
   }
 
   get canManageStock(): boolean {
@@ -136,11 +146,19 @@ export class InventoryPageComponent implements OnInit {
     const v = this.stockInForm.getRawValue();
     if (!v.productId) return;
     this.inventoryService
-      .stockIn({ branchId: this.branchId, productId: v.productId, quantity: v.quantity, notes: v.notes })
+      .stockIn({
+        branchId: this.branchId,
+        productId: v.productId,
+        quantity: v.quantity,
+        supplierId: v.supplierId ?? undefined,
+        invoiceNo: v.invoiceNo || undefined,
+        invoiceDate: v.invoiceDate || undefined,
+        notes: v.notes,
+      })
       .subscribe({
         next: () => {
           this.snack.success(this.i18n.instant('COMMON.SAVED'));
-          this.stockInForm.reset({ productId: null, quantity: 1, notes: '' });
+          this.stockInForm.reset({ productId: null, quantity: 1, supplierId: null, invoiceNo: '', invoiceDate: '', notes: '' });
           this.loadBalances();
           this.loadLowStock();
           this.loadMovements();

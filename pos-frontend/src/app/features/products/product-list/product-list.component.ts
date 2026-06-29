@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { ProductService } from '../../../core/services/product.service';
 import { CategoryService } from '../../../core/services/category.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { SnackService } from '../../../core/services/snack.service';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { Product } from '../../../core/models/product.model';
@@ -21,7 +21,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
   selector: 'app-product-list',
   standalone: true,
   imports: [
-    NgIf, NgFor, FormsModule, TranslateModule, MatButtonModule,
+    NgIf, NgFor, FormsModule, TranslateModule,
     PageHeaderComponent, TablePagerComponent, EmptyStateComponent, LoadingSpinnerComponent,
   ],
   templateUrl: './product-list.component.html',
@@ -39,6 +39,7 @@ export class ProductListComponent implements OnInit {
   constructor(
     private readonly productService: ProductService,
     private readonly categoryService: CategoryService,
+    private readonly auth: AuthService,
     private readonly dialog: MatDialog,
     private readonly snack: SnackService,
     readonly i18n: I18nService
@@ -64,6 +65,10 @@ export class ProductListComponent implements OnInit {
   onPageChange(index: number): void {
     this.pageIndex = index;
     this.load();
+  }
+
+  get canDelete(): boolean {
+    return this.auth.isAdmin();
   }
 
   openDialog(product?: Product): void {
@@ -109,4 +114,8 @@ export class ProductListComponent implements OnInit {
   }
 
   readonly Number = Number;
+
+  get activeCount(): number {
+    return this.products.filter((p) => p.active !== false).length;
+  }
 }

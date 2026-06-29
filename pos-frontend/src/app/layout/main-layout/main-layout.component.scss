@@ -15,4 +15,8 @@
   position: relative;
   flex: 1;
   min-height: calc(100vh - var(--topbar-height));
+
+  @media (max-width: 768px) {
+    padding-bottom: 64px;
+  }
 }

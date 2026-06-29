@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { CustomerService } from '../../../core/services/customer.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { SnackService } from '../../../core/services/snack.service';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { Customer } from '../../../core/models/customer.model';
@@ -12,6 +13,7 @@ import { TablePagerComponent } from '../../../shared/components/table-pager/tabl
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { CustomerDialogComponent } from '../customer-dialog/customer-dialog.component';
+import { LoyaltyDialogComponent } from '../loyalty-dialog/loyalty-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
@@ -29,6 +31,7 @@ export class CustomerListComponent implements OnInit {
 
   constructor(
     private readonly customerService: CustomerService,
+    private readonly auth: AuthService,
     private readonly dialog: MatDialog,
     private readonly snack: SnackService,
     readonly i18n: I18nService
@@ -47,6 +50,22 @@ export class CustomerListComponent implements OnInit {
         this.loading = false;
       },
       error: () => (this.loading = false),
+    });
+  }
+
+  get canDelete(): boolean {
+    return this.auth.isAdmin() || this.auth.isManager();
+  }
+
+  openLoyalty(customer: Customer): void {
+    this.dialog.open(LoyaltyDialogComponent, {
+      width: '640px',
+      panelClass: 'app-dialog-panel',
+      data: { customer },
+    }).afterClosed().subscribe((balance) => {
+      if (balance != null) {
+        customer.loyaltyPoints = balance;
+      }
     });
   }
 

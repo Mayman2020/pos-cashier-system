@@ -4,12 +4,14 @@
   </app-page-header>
 
   <div class="filter-row" [formGroup]="filterForm">
-    <mat-form-field appearance="outline"><mat-label>{{ 'REPORTS.DATE' | translate }}</mat-label><input matInput type="date" formControlName="date" /></mat-form-field>
-    <mat-form-field appearance="outline"><mat-label>{{ 'REPORTS.FROM' | translate }}</mat-label><input matInput type="date" formControlName="from" /></mat-form-field>
-    <mat-form-field appearance="outline"><mat-label>{{ 'REPORTS.TO' | translate }}</mat-label><input matInput type="date" formControlName="to" /></mat-form-field>
+    <app-date-field formControlName="date" labelKey="REPORTS.DATE" [filter]="true"></app-date-field>
+    <app-date-field formControlName="from" labelKey="REPORTS.FROM" [filter]="true"></app-date-field>
+    <app-date-field formControlName="to" labelKey="REPORTS.TO" [filter]="true"></app-date-field>
     <mat-form-field appearance="outline"><mat-label>{{ 'REPORTS.YEAR' | translate }}</mat-label><input matInput type="number" formControlName="year" /></mat-form-field>
     <mat-form-field appearance="outline"><mat-label>{{ 'REPORTS.MONTH' | translate }}</mat-label><input matInput type="number" formControlName="month" /></mat-form-field>
   </div>
+
+  <app-pos-reports-cards [cards]="reportCards"></app-pos-reports-cards>
 
   <div class="stat-grid" *ngIf="dailySales">
     <app-stat-card icon="receipt" [label]="'REPORTS.DAILY_ORDERS' | translate" [value]="dailySales.orderCount ?? dailySales.totalOrders ?? 0"></app-stat-card>

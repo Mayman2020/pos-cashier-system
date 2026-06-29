@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>{{ 'LOYALTY.TITLE' | translate }} — {{ data.customer.name }}</h2>
+<mat-dialog-content>
+  <p><strong>{{ 'LOYALTY.BALANCE' | translate }}:</strong> {{ balance }}</p>
+  <div *ngIf="canAdjust" class="adjust-row">
+    <mat-form-field appearance="outline"><mat-label>{{ 'LOYALTY.ADJUST_POINTS' | translate }}</mat-label><input matInput type="number" [(ngModel)]="adjustPoints" /></mat-form-field>
+    <mat-form-field appearance="outline" class="grow"><mat-label>{{ 'COMMON.NOTES' | translate }}</mat-label><input matInput [(ngModel)]="adjustNotes" /></mat-form-field>
+    <button mat-stroked-button type="button" (click)="adjust()">{{ 'LOYALTY.ADJUST' | translate }}</button>
+  </div>
+  <table class="app-data-table" *ngIf="transactions.length">
+    <thead><tr><th>{{ 'COMMON.DATE' | translate }}</th><th>{{ 'COMMON.TYPE' | translate }}</th><th>{{ 'LOYALTY.POINTS' | translate }}</th><th>{{ 'COMMON.NOTES' | translate }}</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let t of transactions">
+        <td>{{ t.createdAt | rmsDate:'datetime' }}</td>
+        <td>{{ t.transactionType }}</td>
+        <td>{{ t.points }}</td>
+        <td>{{ t.notes }}</td>
+      </tr>
+    </tbody>
+  </table>
+</mat-dialog-content>
+<mat-dialog-actions align="end"><button mat-stroked-button type="button" (click)="ref.close(balance)">{{ 'ACTIONS.CLOSE' | translate }}</button></mat-dialog-actions>
+<style>.adjust-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:16px}.grow{flex:1}</style>

@@ -1,0 +1,71 @@
+<div class="pos-cart-panel">
+  <header class="cart-head">
+    <h2>{{ 'POS.CART' | translate }} <span class="count">({{ cartCount }})</span></h2>
+    <button type="button" class="clear-btn" *ngIf="lines.length" (click)="clear.emit()" title="clear">
+      <span class="material-icons">delete_outline</span>
+    </button>
+  </header>
+
+  <div class="cart-lines" *ngIf="lines.length; else empty">
+    <article class="cart-line" *ngFor="let line of lines">
+      <img class="thumb" [src]="lineImage(line)" alt="" />
+      <div class="line-body">
+        <strong class="line-name">
+          {{ line.product.name }}
+          <small *ngIf="line.variant"> — {{ line.variant.name }}</small>
+        </strong>
+        <span class="line-price">{{ formatMoney(lineUnitPrice(line)) }}</span>
+        <small class="mods" *ngIf="modifierLabel(line)">{{ modifierLabel(line) }}</small>
+        <div class="qty-row">
+          <button type="button" class="qty" (click)="qtyChange.emit({ line, delta: -1 })">−</button>
+          <span>{{ line.quantity }}</span>
+          <button type="button" class="qty" (click)="qtyChange.emit({ line, delta: 1 })">+</button>
+        </div>
+      </div>
+    </article>
+  </div>
+  <ng-template #empty>
+    <div class="cart-empty">
+      <span class="material-icons">shopping_cart</span>
+      <p>{{ 'POS.CART_EMPTY' | translate }}</p>
+    </div>
+  </ng-template>
+
+  <div class="extras">
+    <ng-container *ngIf="allowManualDiscount">
+      <label class="field-label">{{ 'POS.DISCOUNT' | translate }}</label>
+      <input
+        type="number"
+        min="0"
+        step="0.01"
+        class="field-input"
+        [ngModel]="orderDiscount"
+        (ngModelChange)="orderDiscountChange.emit($event)" />
+    </ng-container>
+    <label class="field-label">{{ 'ORDERS.ORDER_NOTE' | translate }}</label>
+    <input
+      class="field-input"
+      [ngModel]="orderNote"
+      (ngModelChange)="orderNoteChange.emit($event)"
+      [placeholder]="'ORDERS.ORDER_NOTE' | translate" />
+  </div>
+
+  <div class="summary">
+    <div class="row"><span>{{ 'POS.SUBTOTAL' | translate }}</span><span>{{ formatMoney(subtotal) }}</span></div>
+    <div class="row"><span>{{ 'POS.DISCOUNT' | translate }}</span><span>-{{ formatMoney(discount) }}</span></div>
+    <div class="row"><span>{{ 'POS.TAX' | translate }}</span><span>{{ formatMoney(tax) }}</span></div>
+    <div class="row total"><strong>{{ 'POS.TOTAL' | translate }}</strong><strong>{{ formatMoney(total) }}</strong></div>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="btn-primary" [disabled]="!lines.length || blocked" (click)="checkout.emit()">
+      {{ 'POS.CHECKOUT' | translate }}
+      <kbd>F9</kbd>
+    </button>
+    <button type="button" class="btn-outline" [disabled]="!lines.length || blocked" (click)="hold.emit()">
+      {{ 'POS.SAVE_DRAFT' | translate }}
+      <kbd>F8</kbd>
+    </button>
+    <button type="button" class="btn-ghost danger" (click)="cancel.emit()">{{ 'POS.CANCEL' | translate }}</button>
+  </div>
+</div>

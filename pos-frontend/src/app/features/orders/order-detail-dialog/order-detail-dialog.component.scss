@@ -1,0 +1,47 @@
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.lbl {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.items-table th,
+.items-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--line-2);
+  text-align: start;
+}
+
+.items-table input {
+  width: 72px;
+  min-height: 36px;
+}
+
+.refund-panel {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.full { width: 100%; }
+
+.notes-block p {
+  margin: 4px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}

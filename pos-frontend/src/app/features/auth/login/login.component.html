@@ -1,30 +1,58 @@
-<div class="login-page">
-  <div class="login-card">
-    <div class="login-brand">
-      <span class="material-icons">point_of_sale</span>
-      <h1>{{ 'APP.TITLE' | translate }}</h1>
-      <p>{{ 'AUTH.SUBTITLE' | translate }}</p>
+<div class="rms-login-split">
+  <section class="login-hero">
+    <div class="login-hero-overlay" aria-hidden="true"></div>
+
+    <div class="login-hero-toolbar">
+      <button type="button" class="hero-tool-btn" [matMenuTriggerFor]="langMenu">
+        <span class="flag">{{ flagFor(i18n.currentLang) }}</span>
+        <span>{{ ('LANG.' + i18n.currentLang.toUpperCase()) | translate }}</span>
+      </button>
+      <mat-menu #langMenu="matMenu">
+        <button mat-menu-item *ngFor="let lang of i18n.languages" (click)="switchLang(lang.code)">
+          <span class="flag">{{ flagFor(lang.code) }}</span>
+          <span>{{ lang.nativeLabel }}</span>
+        </button>
+      </mat-menu>
+      <button type="button" class="hero-tool-btn icon-only" (click)="theme.toggle()" [attr.aria-label]="'COMMON.THEME' | translate">
+        <span class="material-icons">{{ theme.mode() === 'dark' ? 'light_mode' : 'dark_mode' }}</span>
+      </button>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="submit()">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>{{ 'AUTH.USERNAME' | translate }}</mat-label>
-        <input matInput formControlName="username" autocomplete="username" />
-      </mat-form-field>
+    <div class="hero-brand-block">
+      <div class="hero-logo-wrap">
+        <span class="material-icons">point_of_sale</span>
+      </div>
+      <h1 class="hero-title">{{ 'APP.TITLE' | translate }}</h1>
+      <p class="hero-subtitle">{{ 'APP.TAGLINE' | translate }}</p>
+      <p class="hero-tagline">{{ 'AUTH.SUBTITLE' | translate }}</p>
+    </div>
+  </section>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>{{ 'AUTH.PASSWORD' | translate }}</mat-label>
-        <input matInput [type]="showPassword ? 'text' : 'password'" formControlName="password" autocomplete="current-password" />
-        <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
-          <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+  <section class="login-panel">
+    <div class="login-panel-inner">
+      <h2>{{ 'AUTH.LOGIN' | translate }}</h2>
+      <p class="panel-sub">{{ 'AUTH.SUBTITLE' | translate }}</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'AUTH.USERNAME' | translate }}</mat-label>
+          <input matInput formControlName="username" autocomplete="username" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'AUTH.PASSWORD' | translate }}</mat-label>
+          <input matInput [type]="showPassword ? 'text' : 'password'" formControlName="password" autocomplete="current-password" />
+          <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
+            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <p class="error" *ngIf="error">{{ error }}</p>
+
+        <button mat-flat-button color="primary" class="login-btn" type="submit" [disabled]="loading || form.invalid">
+          {{ loading ? ('COMMON.LOADING' | translate) : ('AUTH.LOGIN' | translate) }}
         </button>
-      </mat-form-field>
-
-      <p class="error" *ngIf="error">{{ error }}</p>
-
-      <button mat-flat-button color="primary" class="login-btn" type="submit" [disabled]="loading || form.invalid">
-        {{ loading ? ('COMMON.LOADING' | translate) : ('AUTH.LOGIN' | translate) }}
-      </button>
-    </form>
-  </div>
+      </form>
+    </div>
+  </section>
 </div>

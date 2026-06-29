@@ -1,0 +1,33 @@
+<nav class="pos-quick-actions">
+  <button type="button" *ngIf="canManageCustomers" (click)="newCustomer.emit()">
+    <span class="material-icons">person_add</span>
+    {{ 'POS.QA_NEW_CUSTOMER' | translate }}
+  </button>
+  <button type="button" *ngIf="canManageProducts" (click)="newProduct.emit()">
+    <span class="material-icons">add_box</span>
+    {{ 'POS.QA_NEW_PRODUCT' | translate }}
+  </button>
+  <button type="button" (click)="openDrawer.emit()">
+    <span class="material-icons">inventory_2</span>
+    {{ 'POS.QA_OPEN_DRAWER' | translate }}
+    <kbd>F4</kbd>
+  </button>
+  <button type="button" (click)="refund.emit()">
+    <span class="material-icons">undo</span>
+    {{ 'POS.QA_REFUND' | translate }}
+  </button>
+  <button type="button" (click)="hold.emit()">
+    <span class="material-icons">pause_circle</span>
+    {{ 'POS.HOLD' | translate }}
+    <kbd>F8</kbd>
+  </button>
+  <button type="button" (click)="search.emit()">
+    <span class="material-icons">search</span>
+    {{ 'COMMON.SEARCH' | translate }}
+  </button>
+  <button type="button" class="primary" (click)="checkout.emit()">
+    <span class="material-icons">payments</span>
+    {{ 'POS.CHECKOUT' | translate }}
+    <kbd>F9</kbd>
+  </button>
+</nav>

@@ -1,0 +1,48 @@
+<div class="app-page">
+  <app-page-header [title]="'PROFILE.TITLE' | translate" [subtitle]="'PROFILE.SUBTITLE' | translate"></app-page-header>
+
+  <div class="loading-wrap" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="app-card profile-card" *ngIf="!loading">
+    <div class="app-card-header">
+      <span class="app-card-title">{{ 'PROFILE.ACCOUNT' | translate }}</span>
+    </div>
+    <div class="app-card-body profile-info">
+      <p><strong>{{ 'AUTH.USERNAME' | translate }}:</strong> {{ username }}</p>
+      <p><strong>{{ 'USERS.FULL_NAME' | translate }}:</strong> {{ fullName }}</p>
+      <p><strong>{{ 'AUTH.EMAIL' | translate }}:</strong> {{ email }}</p>
+    </div>
+  </div>
+
+  <form
+    class="app-card profile-card"
+    *ngIf="!loading"
+    [formGroup]="passwordForm"
+    (ngSubmit)="changePassword()"
+    [class.highlight]="highlightPassword">
+    <div class="app-card-header">
+      <span class="app-card-title">{{ 'PROFILE.CHANGE_PASSWORD' | translate }}</span>
+    </div>
+    <div class="app-card-body profile-form">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'PROFILE.CURRENT_PASSWORD' | translate }}</mat-label>
+        <input matInput type="password" formControlName="currentPassword" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'PROFILE.NEW_PASSWORD' | translate }}</mat-label>
+        <input matInput type="password" formControlName="newPassword" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'PROFILE.CONFIRM_PASSWORD' | translate }}</mat-label>
+        <input matInput type="password" formControlName="confirmPassword" />
+      </mat-form-field>
+      <div class="form-actions">
+        <button mat-flat-button type="submit" [disabled]="passwordForm.invalid || changingPassword">
+          {{ 'PROFILE.CHANGE_PASSWORD' | translate }}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

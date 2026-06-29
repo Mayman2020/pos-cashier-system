@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Profile = "dev",
+    [string]$Profile = "",
     [switch]$SkipBuild,
     [int]$Port = 8082
 )
@@ -9,8 +9,29 @@ $ErrorActionPreference = 'Stop'
 $ScriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 $MvnwPath = Join-Path $ScriptDir "mvnw.cmd"
 $ContextPath = "/api/v1"
+$WorkspaceRoot = Split-Path -Parent $ScriptDir
+$RuntimeDir = Join-Path $WorkspaceRoot ".runtime"
+$RuntimeStateFile = Join-Path $RuntimeDir "launcher-state.json"
+$FrontendRuntimeConfigJs = Join-Path $WorkspaceRoot "pos-frontend\src\assets\runtime-config.js"
 
 function Write-Step { param([string]$Message, [string]$Color = "Cyan") Write-Host $Message -ForegroundColor $Color }
+
+function Stop-ListenerOnPort {
+    param([int]$TargetPort)
+    $pattern = ':\s*' + $TargetPort + '\s+.*LISTENING\s+(\d+)\s*$'
+    $pids = @()
+    netstat -ano | ForEach-Object {
+        if ($_ -match $pattern) {
+            $pids += [int]$Matches[1]
+        }
+    }
+    foreach ($procId in ($pids | Select-Object -Unique)) {
+        if ($procId -le 0) { continue }
+        Write-Step "Port $TargetPort in use by PID $procId - stopping previous instance..." "Yellow"
+        taskkill /PID $procId /F | Out-Null
+        Start-Sleep -Seconds 1
+    }
+}
 
 $JavaCandidates = @($env:JAVA_HOME, "C:\Program Files\Java\jdk-17", "C:\Program Files\Eclipse Adoptium\jdk-17*")
 $ResolvedJavaHome = $null
@@ -24,17 +45,38 @@ $env:JAVA_HOME = $ResolvedJavaHome
 $env:Path = "$($env:JAVA_HOME)\bin;$env:Path"
 
 Set-Location $ScriptDir
+Stop-ListenerOnPort -TargetPort $Port
+
 if (-not $SkipBuild) {
     Write-Step "Maven compile..." "Cyan"
     & $MvnwPath compile -DskipTests
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
-$env:SPRING_PROFILES_ACTIVE = $Profile
+$profileLabel = if ($Profile) { $Profile } else { "default (postgres:5432, schema pos_mgmt)" }
+if ($Profile) { $env:SPRING_PROFILES_ACTIVE = $Profile } elseif (Test-Path Env:SPRING_PROFILES_ACTIVE) { Remove-Item Env:SPRING_PROFILES_ACTIVE }
 $BaseUrl = "http://localhost:$Port$ContextPath"
-Write-Step "Starting POS backend on $BaseUrl (profile: $Profile)" "Green"
+
+if (-not (Test-Path $RuntimeDir)) { New-Item -ItemType Directory -Path $RuntimeDir | Out-Null }
+@{
+    backendPort = $Port
+    backendBaseUrl = $BaseUrl
+    backendFileBaseUrl = "$BaseUrl/files"
+    updatedAt = (Get-Date).ToString("o")
+} | ConvertTo-Json | Set-Content -Path $RuntimeStateFile -Encoding UTF8
+
+if (Test-Path (Split-Path -Parent $FrontendRuntimeConfigJs)) {
+@"
+window.__POS_API_URL__ = '$BaseUrl';
+window.__POS_FILE_URL__ = '$BaseUrl/files';
+"@ | Set-Content -Path $FrontendRuntimeConfigJs -Encoding UTF8
+}
+
+Write-Step "Starting POS backend on $BaseUrl (profile: $profileLabel)" "Green"
 Write-Step "Default login: admin / admin123" "Gray"
 Write-Step "Stop with Ctrl+C" "Gray"
 
-& $MvnwPath spring-boot:run "-Dspring-boot.run.profiles=$Profile" "-Dspring-boot.run.arguments=--server.port=$Port"
+$runArgs = @("spring-boot:run", "-Dspring-boot.run.arguments=--server.port=$Port")
+if ($Profile) { $runArgs += "-Dspring-boot.run.profiles=$Profile" }
+& $MvnwPath @runArgs
 exit $LASTEXITCODE

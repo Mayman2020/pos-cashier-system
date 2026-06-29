@@ -21,6 +21,7 @@ public class ProductResponse {
     private BigDecimal costPrice;
     private BigDecimal sellingPrice;
     private BigDecimal taxRate;
+    private Long taxId;
     private boolean trackStock;
     private BigDecimal lowStockThreshold;
     private boolean active;
@@ -40,6 +41,7 @@ public class ProductResponse {
                 .costPrice(product.getCostPrice())
                 .sellingPrice(product.getSellingPrice())
                 .taxRate(product.getTaxRate())
+                .taxId(product.getTaxId())
                 .trackStock(product.isTrackStock())
                 .lowStockThreshold(product.getLowStockThreshold())
                 .active(product.isActive())

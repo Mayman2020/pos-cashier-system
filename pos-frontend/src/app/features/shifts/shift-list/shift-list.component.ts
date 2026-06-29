@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgFor, NgIf, DatePipe } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,19 +7,21 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { ShiftService } from '../../../core/services/shift.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { BranchContextService } from '../../../core/services/branch-context.service';
 import { SnackService } from '../../../core/services/snack.service';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { Shift } from '../../../core/models/shift.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { TablePagerComponent } from '../../../shared/components/table-pager/table-pager.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { CloseShiftDialogComponent } from '../close-shift-dialog/close-shift-dialog.component';
+import { RmsDatePipe } from '../../../shared/pipes/rms-date.pipe';
 
 @Component({
   selector: 'app-shift-list',
   standalone: true,
   imports: [
-    NgIf, NgFor, DatePipe, ReactiveFormsModule, TranslateModule,
+    NgIf, NgFor, ReactiveFormsModule, TranslateModule, RmsDatePipe,
     MatButtonModule, MatFormFieldModule, MatInputModule, MatDialogModule,
     PageHeaderComponent, TablePagerComponent, LoadingSpinnerComponent,
   ],
@@ -36,13 +38,12 @@ export class ShiftListComponent implements OnInit {
   currentOpenShift: Shift | null = null;
 
   readonly openForm = this.fb.nonNullable.group({ openingCash: [0, Validators.min(0)] });
-  readonly closeForm = this.fb.nonNullable.group({ actualCash: [0, Validators.required], notes: [''] });
-  closingShift: Shift | null = null;
 
   constructor(
     private readonly shiftService: ShiftService,
-    private readonly auth: AuthService,
+    private readonly branchContext: BranchContextService,
     private readonly fb: FormBuilder,
+    private readonly dialog: MatDialog,
     private readonly snack: SnackService,
     readonly i18n: I18nService
   ) {}
@@ -53,7 +54,7 @@ export class ShiftListComponent implements OnInit {
   }
 
   get branchId(): number {
-    return this.auth.getCurrentUser()?.branchId ?? 1;
+    return this.branchContext.getBranchId();
   }
 
   load(): void {
@@ -81,21 +82,25 @@ export class ShiftListComponent implements OnInit {
   }
 
   startClose(shift: Shift): void {
-    this.closingShift = shift;
-    this.closeForm.patchValue({ actualCash: Number(shift.expectedCash ?? 0), notes: '' });
-  }
-
-  closeShift(): void {
-    if (!this.closingShift || this.closeForm.invalid) return;
-    const v = this.closeForm.getRawValue();
-    this.shiftService.close(this.closingShift.id, v).subscribe({
-      next: () => {
-        this.currentOpenShift = null;
-        this.snack.success(this.i18n.instant('SHIFTS.CLOSED'));
-        this.closingShift = null;
-        this.load();
+    this.shiftService.getById(shift.id).subscribe({
+      next: (fresh) => {
+        const ref = this.dialog.open(CloseShiftDialogComponent, {
+          panelClass: 'app-dialog-panel',
+          width: '760px',
+          data: { shift: fresh },
+        });
+        ref.afterClosed().subscribe((result) => {
+          if (!result) return;
+          this.shiftService.close(fresh.id, result).subscribe({
+            next: () => {
+              this.currentOpenShift = null;
+              this.snack.success(this.i18n.instant('SHIFTS.CLOSED'));
+              this.load();
+            },
+            error: (e: Error) => this.snack.error(e.message),
+          });
+        });
       },
-      error: (e: Error) => this.snack.error(e.message),
     });
   }
 

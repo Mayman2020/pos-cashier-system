@@ -12,6 +12,11 @@ export interface Shift {
   actualCash?: number;
   cashDifference?: number;
   totalSales?: number;
+  totalCashSales?: number;
+  totalCardSales?: number;
+  totalRefundsCash?: number;
+  totalRefundsCard?: number;
+  totalPayouts?: number;
   notes?: string;
 }
 
@@ -23,4 +28,5 @@ export interface OpenShiftRequest {
 export interface CloseShiftRequest {
   actualCash: number;
   notes?: string;
+  forceClose?: boolean;
 }

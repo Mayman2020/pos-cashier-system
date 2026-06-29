@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import { ReportService } from '../../../core/services/report.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { BranchContextService } from '../../../core/services/branch-context.service';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import {
   BranchSalesReport,
@@ -20,6 +21,8 @@ import {
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { PosReportsCardsComponent } from '../../../shared/pos/reports-cards/reports-cards.component';
+import { DateFieldComponent } from '../../../shared/components/date-field/date-field.component';
 
 @Component({
   selector: 'app-reports-page',
@@ -27,11 +30,11 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
   imports: [
     NgIf, NgFor, ReactiveFormsModule, TranslateModule,
     MatButtonModule, MatFormFieldModule, MatInputModule,
-    PageHeaderComponent, StatCardComponent, LoadingSpinnerComponent,
+    PageHeaderComponent, StatCardComponent, LoadingSpinnerComponent, PosReportsCardsComponent, DateFieldComponent,
   ],
   templateUrl: './reports-page.component.html',
 })
-export class ReportsPageComponent implements OnInit {
+export class ReportsPageComponent implements OnInit, OnDestroy {
   loading = false;
   dailySales: SalesReport | null = null;
   monthlySales: SalesReport | null = null;
@@ -41,6 +44,7 @@ export class ReportsPageComponent implements OnInit {
   cashierSales: CashierSalesReport[] = [];
   branchSales: BranchSalesReport[] = [];
   lowStockReport: LowStockReportItem[] = [];
+  private branchSub?: Subscription;
 
   readonly filterForm = this.fb.nonNullable.group({
     date: [new Date().toISOString().slice(0, 10)],
@@ -52,17 +56,22 @@ export class ReportsPageComponent implements OnInit {
 
   constructor(
     private readonly reportService: ReportService,
-    private readonly auth: AuthService,
+    private readonly branchContext: BranchContextService,
     private readonly fb: FormBuilder,
     readonly i18n: I18nService
   ) {}
 
   ngOnInit(): void {
     this.loadAll();
+    this.branchSub = this.branchContext.branchChanged$.subscribe(() => this.loadAll());
   }
 
-  get branchId(): number | undefined {
-    return this.auth.getCurrentUser()?.branchId;
+  ngOnDestroy(): void {
+    this.branchSub?.unsubscribe();
+  }
+
+  get branchId(): number {
+    return this.branchContext.getBranchId();
   }
 
   loadAll(): void {
@@ -95,6 +104,15 @@ export class ReportsPageComponent implements OnInit {
 
   fmtMoney(v?: number): string {
     return this.i18n.formatCurrency(Number(v ?? 0));
+  }
+
+  get reportCards() {
+    return [
+      { icon: 'receipt', labelKey: 'REPORTS.DAILY_ORDERS', value: String(this.dailySales?.orderCount ?? this.dailySales?.totalOrders ?? 0), accent: '#4f46e5' },
+      { icon: 'payments', labelKey: 'REPORTS.DAILY_SALES', value: this.fmtMoney(Number(this.dailySales?.totalSales)), accent: '#7c3aed' },
+      { icon: 'calendar_month', labelKey: 'REPORTS.MONTHLY_SALES', value: this.fmtMoney(Number(this.monthlySales?.totalSales)), accent: '#2563eb' },
+      { icon: 'trending_up', labelKey: 'REPORTS.GROSS_PROFIT', value: this.fmtMoney(Number(this.profit?.grossProfit)), accent: '#16a34a' },
+    ];
   }
 
   readonly Number = Number;

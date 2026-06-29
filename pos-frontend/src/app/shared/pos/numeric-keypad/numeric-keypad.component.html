@@ -1,0 +1,8 @@
+<div class="pos-keypad">
+  <div class="display">{{ value }}</div>
+  <div class="keys">
+    <button type="button" *ngFor="let k of keys" (click)="tap(k)">{{ k }}</button>
+    <button type="button" class="clear" (click)="clear()">C</button>
+    <button type="button" class="enter" (click)="enter.emit()">{{ 'POS.KEYPAD_ENTER' | translate }}</button>
+  </div>
+</div>

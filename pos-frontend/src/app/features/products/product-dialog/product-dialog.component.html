@@ -1,0 +1,79 @@
+<h2 mat-dialog-title>{{ (isEdit ? 'PRODUCTS.EDIT' : 'PRODUCTS.CREATE') | translate }}</h2>
+<mat-dialog-content>
+  <mat-tab-group>
+    <mat-tab [label]="'PRODUCTS.TAB_INFO' | translate">
+      <div [formGroup]="form" class="tab-body">
+        <mat-form-field appearance="outline" class="full"><mat-label>{{ 'PRODUCTS.SKU' | translate }}</mat-label><input matInput formControlName="sku" /></mat-form-field>
+        <mat-form-field appearance="outline" class="full"><mat-label>{{ 'PRODUCTS.BARCODE' | translate }}</mat-label><input matInput formControlName="barcode" /></mat-form-field>
+        <mat-form-field appearance="outline" class="full"><mat-label>{{ 'PRODUCTS.NAME' | translate }}</mat-label><input matInput formControlName="name" /></mat-form-field>
+        <mat-form-field appearance="outline" class="full"><mat-label>{{ 'PRODUCTS.DESCRIPTION' | translate }}</mat-label><textarea matInput rows="2" formControlName="description"></textarea></mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'PRODUCTS.CATEGORY' | translate }}</mat-label>
+          <mat-select formControlName="categoryId">
+            <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
+            <mat-option *ngFor="let c of data.categories" [value]="c.id">{{ c.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'UNITS.TITLE' | translate }}</mat-label>
+          <mat-select formControlName="unitId">
+            <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
+            <mat-option *ngFor="let u of units" [value]="u.id">{{ u.name }} ({{ u.symbol }})</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'TAXES.TITLE' | translate }}</mat-label>
+          <mat-select formControlName="taxId">
+            <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
+            <mat-option *ngFor="let t of taxes" [value]="t.id">{{ t.name }} ({{ t.rate }}%)</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full"><mat-label>{{ 'PRODUCTS.COST' | translate }}</mat-label><input matInput type="number" formControlName="costPrice" /></mat-form-field>
+        <mat-form-field appearance="outline" class="full"><mat-label>{{ 'PRODUCTS.PRICE' | translate }}</mat-label><input matInput type="number" formControlName="sellingPrice" /></mat-form-field>
+        <mat-form-field appearance="outline" class="full"><mat-label>{{ 'INVENTORY.THRESHOLD' | translate }}</mat-label><input matInput type="number" formControlName="lowStockThreshold" /></mat-form-field>
+        <div>
+          <label>{{ 'PRODUCTS.IMAGE' | translate }}</label>
+          <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+          <img *ngIf="form.value.imageUrl" [src]="form.value.imageUrl" class="img-preview" alt="" />
+        </div>
+        <mat-checkbox formControlName="active">{{ 'COMMON.ACTIVE' | translate }}</mat-checkbox>
+        <mat-checkbox formControlName="trackStock">{{ 'PRODUCTS.TRACK_STOCK' | translate }}</mat-checkbox>
+      </div>
+    </mat-tab>
+    <mat-tab [label]="'PRODUCTS.TAB_VARIANTS' | translate" [disabled]="!isEdit">
+      <div class="tab-body" [formGroup]="variantForm">
+        <div class="variant-row" *ngFor="let v of variants">
+          <span>{{ v.name }}</span>
+          <span>{{ v.sku }} — {{ v.sellingPrice }}</span>
+          <span>
+            <button mat-icon-button type="button" (click)="editVariant(v)"><span class="material-icons">edit</span></button>
+            <button mat-icon-button type="button" (click)="deleteVariant(v)"><span class="material-icons">delete</span></button>
+          </span>
+        </div>
+        <mat-form-field appearance="outline" class="full"><mat-label>{{ 'PRODUCTS.SKU' | translate }}</mat-label><input matInput formControlName="sku" /></mat-form-field>
+        <mat-form-field appearance="outline" class="full"><mat-label>{{ 'UNITS.NAME' | translate }}</mat-label><input matInput formControlName="name" /></mat-form-field>
+        <mat-form-field appearance="outline" class="full"><mat-label>{{ 'PRODUCTS.PRICE' | translate }}</mat-label><input matInput type="number" formControlName="sellingPrice" /></mat-form-field>
+        <button mat-stroked-button type="button" (click)="addVariant()">{{ 'PRODUCTS.ADD_VARIANT' | translate }}</button>
+      </div>
+    </mat-tab>
+    <mat-tab [label]="'PRODUCTS.TAB_MODIFIERS' | translate" [disabled]="!isEdit">
+      <div class="tab-body" [formGroup]="modifierForm">
+        <div *ngFor="let m of modifiers" class="variant-row">
+          <span>{{ m.name }}</span>
+          <span>+{{ m.priceAdjustment }}</span>
+          <span>
+            <button mat-icon-button type="button" (click)="editModifier(m)"><span class="material-icons">edit</span></button>
+            <button mat-icon-button type="button" (click)="deleteModifier(m)"><span class="material-icons">delete</span></button>
+          </span>
+        </div>
+        <mat-form-field appearance="outline" class="full"><mat-label>{{ 'UNITS.NAME' | translate }}</mat-label><input matInput formControlName="name" /></mat-form-field>
+        <mat-form-field appearance="outline" class="full"><mat-label>{{ 'PRODUCTS.PRICE' | translate }}</mat-label><input matInput type="number" formControlName="priceAdjustment" /></mat-form-field>
+        <button mat-stroked-button type="button" (click)="addModifier()">{{ 'PRODUCTS.ADD_MODIFIER' | translate }}</button>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="ref.close()">{{ 'ACTIONS.CANCEL' | translate }}</button>
+  <button mat-flat-button type="button" [disabled]="form.invalid" (click)="save()">{{ 'ACTIONS.SAVE' | translate }}</button>
+</mat-dialog-actions>

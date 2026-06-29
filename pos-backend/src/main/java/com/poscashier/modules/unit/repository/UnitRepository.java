@@ -15,7 +15,7 @@ public interface UnitRepository extends JpaRepository<Unit, Long> {
 
     @Query("""
             SELECT u FROM Unit u
-            WHERE (:q IS NULL OR :q = '' OR LOWER(u.name) LIKE LOWER(CONCAT('%', :q, '%'))
+            WHERE (LOWER(u.name) LIKE LOWER(CONCAT('%', :q, '%'))
                 OR LOWER(u.code) LIKE LOWER(CONCAT('%', :q, '%')))
             """)
     Page<Unit> search(@Param("q") String q, Pageable pageable);

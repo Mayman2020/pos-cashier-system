@@ -14,7 +14,10 @@
             <td>{{ t.rate }}%</td>
             <td>{{ t.defaultTax ? ('COMMON.ACTIVE' | translate) : '—' }}</td>
             <td>{{ t.active !== false ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}</td>
-            <td><button mat-stroked-button type="button" (click)="openDialog(t)">{{ 'TAXES.EDIT' | translate }}</button></td>
+            <td>
+              <button mat-stroked-button type="button" (click)="openDialog(t)">{{ 'TAXES.EDIT' | translate }}</button>
+              <button mat-stroked-button type="button" color="warn" (click)="deleteTax(t)">{{ 'COMMON.DELETE' | translate }}</button>
+            </td>
           </tr>
         </tbody>
       </table>

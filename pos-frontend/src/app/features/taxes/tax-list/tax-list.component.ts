@@ -11,6 +11,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { TaxDialogComponent } from '../tax-dialog/tax-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-tax-list',
@@ -59,5 +60,18 @@ export class TaxListComponent implements OnInit {
           error: (e: Error) => this.snack.error(e.message),
         });
       });
+  }
+
+  deleteTax(tax: Tax): void {
+    this.dialog.open(ConfirmDialogComponent, {
+      panelClass: 'app-dialog-panel',
+      data: { title: 'COMMON.DELETE', message: 'TAXES.DELETE_MSG', danger: true },
+    }).afterClosed().subscribe((ok) => {
+      if (!ok) return;
+      this.taxService.delete(tax.id).subscribe({
+        next: () => { this.snack.success(this.i18n.instant('COMMON.DELETED')); this.load(); },
+        error: (e: Error) => this.snack.error(e.message),
+      });
+    });
   }
 }

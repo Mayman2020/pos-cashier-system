@@ -58,4 +58,8 @@ public class Payment {
 
     @Column(name = "created_by", length = 100)
     private String createdBy;
+
+    @Builder.Default
+    @Column(name = "is_refund")
+    private boolean refund = false;
 }

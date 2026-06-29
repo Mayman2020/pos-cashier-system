@@ -11,6 +11,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { DiscountDialogComponent } from '../discount-dialog/discount-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-discount-list',
@@ -63,5 +64,18 @@ export class DiscountListComponent implements OnInit {
           error: (e: Error) => this.snack.error(e.message),
         });
       });
+  }
+
+  deleteDiscount(discount: Discount): void {
+    this.dialog.open(ConfirmDialogComponent, {
+      panelClass: 'app-dialog-panel',
+      data: { title: 'COMMON.DELETE', message: 'DISCOUNTS.DELETE_MSG', danger: true },
+    }).afterClosed().subscribe((ok) => {
+      if (!ok) return;
+      this.discountService.delete(discount.id).subscribe({
+        next: () => { this.snack.success(this.i18n.instant('COMMON.DELETED')); this.load(); },
+        error: (e: Error) => this.snack.error(e.message),
+      });
+    });
   }
 }

@@ -1,0 +1,68 @@
+.pos-product-card {
+  border: 1px solid var(--pos-border, #e8ecf4);
+  border-radius: 16px;
+  background: #fff;
+  padding: 0;
+  cursor: pointer;
+  text-align: start;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover:not(.out-of-stock) {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(79, 70, 229, 0.12);
+    border-color: var(--pos-primary-light, #a5b4fc);
+  }
+
+  &.out-of-stock { opacity: 0.5; cursor: not-allowed; }
+}
+
+.img-wrap {
+  position: relative;
+  aspect-ratio: 4/3;
+  background: #f4f6fb;
+
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+
+.stock-tag {
+  position: absolute;
+  top: 8px;
+  inset-inline-start: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--pos-primary, #4f46e5);
+}
+
+.add-fab {
+  position: absolute;
+  bottom: 10px;
+  inset-inline-end: 10px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+
+  .material-icons { font-size: 20px; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.info { padding: 12px 14px 14px; }
+.name { margin: 0; font-size: 15px; font-weight: 700; color: #1e293b; line-height: 1.3; }
+.sku { margin: 4px 0 0; font-size: 11px; color: #94a3b8; }
+.price {
+  margin: 8px 0 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--pos-primary, #4f46e5);
+}

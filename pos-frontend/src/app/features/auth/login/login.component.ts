@@ -1,20 +1,25 @@
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
+import { switchMap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
+import { PermissionService } from '../../../core/services/permission.service';
 import { SnackService } from '../../../core/services/snack.service';
 import { I18nService } from '../../../core/i18n/i18n.service';
+import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
+    NgFor,
     NgIf,
     ReactiveFormsModule,
     TranslateModule,
@@ -22,6 +27,7 @@ import { I18nService } from '../../../core/i18n/i18n.service';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    MatMenuModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -39,23 +45,39 @@ export class LoginComponent {
   constructor(
     private readonly fb: FormBuilder,
     private readonly auth: AuthService,
+    private readonly perms: PermissionService,
     private readonly router: Router,
     private readonly snack: SnackService,
-    readonly i18n: I18nService
+    readonly i18n: I18nService,
+    readonly theme: ThemeService
   ) {
     if (this.auth.isAuthenticated()) {
       void this.router.navigateByUrl(this.auth.getDashboardRoute());
     }
   }
 
+  switchLang(code: 'ar' | 'en'): void {
+    this.i18n.setLang(code).subscribe();
+  }
+
+  flagFor(code: 'ar' | 'en'): string {
+    return code === 'ar' ? '🇸🇦' : '🇬🇧';
+  }
+
   submit(): void {
     if (this.form.invalid || this.loading) return;
     this.loading = true;
     this.error = '';
-    this.auth.login(this.form.getRawValue()).subscribe({
+    this.auth
+      .login(this.form.getRawValue())
+      .pipe(switchMap(() => this.perms.loadMine()))
+      .subscribe({
       next: () => {
         this.loading = false;
-        void this.router.navigateByUrl(this.auth.getDashboardRoute());
+        const target = this.auth.mustChangePassword()
+          ? '/admin/profile?changePassword=1'
+          : this.auth.getDashboardRoute();
+        void this.router.navigateByUrl(target);
       },
       error: (err: Error & { status?: number }) => {
         this.loading = false;

@@ -1,5 +1,14 @@
 import { environment } from '../../../environments/environment';
 
+type RuntimeWindow = Window & { __POS_API_URL__?: string };
+
+function getRuntimeApiBaseUrl(): string {
+  const runtimeApiUrl = typeof window !== 'undefined'
+    ? (window as RuntimeWindow).__POS_API_URL__
+    : undefined;
+  return runtimeApiUrl?.trim() || environment.apiUrl;
+}
+
 export const HTTP_HEADERS = {
   ACTIVE_ROLE: 'X-Active-Role',
 } as const;
@@ -13,7 +22,7 @@ export const AppConstants = {
   },
 
   API: {
-    baseURL: environment.apiUrl,
+    baseURL: getRuntimeApiBaseUrl(),
 
     AUTH_LOGIN: '/auth/login',
     AUTH_REFRESH: '/auth/refresh',
@@ -23,12 +32,32 @@ export const AppConstants = {
 
     PRODUCTS: '/products',
     PRODUCT_BY_ID: (id: number) => `/products/${id}`,
+    PRODUCT_VARIANTS: (productId: number) => `/products/${productId}/variants`,
+    PRODUCT_VARIANT_BY_ID: (productId: number, variantId: number) => `/products/${productId}/variants/${variantId}`,
+
+    UNITS: '/units',
+    UNIT_BY_ID: (id: number) => `/units/${id}`,
+
+    FILES: '/files',
 
     CATEGORIES: '/categories',
     CATEGORY_BY_ID: (id: number) => `/categories/${id}`,
 
     CUSTOMERS: '/customers',
     CUSTOMER_BY_ID: (id: number) => `/customers/${id}`,
+    CUSTOMER_LOYALTY_TRANSACTIONS: (id: number) => `/customers/${id}/loyalty/transactions`,
+    CUSTOMER_LOYALTY_ADJUST: (id: number) => `/customers/${id}/loyalty/adjust`,
+
+    PURCHASE_ORDERS: '/purchase-orders',
+    PURCHASE_ORDER_BY_ID: (id: number) => `/purchase-orders/${id}`,
+    PURCHASE_ORDER_RECEIVE: (id: number) => `/purchase-orders/${id}/receive`,
+    PURCHASE_ORDER_CANCEL: (id: number) => `/purchase-orders/${id}/cancel`,
+
+    EXPENSES: '/expenses',
+
+    AUDIT_LOGS: '/audit-logs',
+
+    MODIFIER_BY_ID: (id: number) => `/modifiers/${id}`,
 
     SUPPLIERS: '/suppliers',
     SUPPLIER_BY_ID: (id: number) => `/suppliers/${id}`,
@@ -47,11 +76,15 @@ export const AppConstants = {
     INVENTORY_STOCK_IN: '/inventory/stock-in',
     INVENTORY_ADJUST: '/inventory/adjust',
     INVENTORY_TRANSFER: '/inventory/transfer',
+    INVENTORY_AVAILABILITY: '/inventory/availability',
 
     SHIFTS: '/shifts',
     SHIFTS_CURRENT: '/shifts/current',
     SHIFTS_OPEN: '/shifts/open',
+    SHIFT_BY_ID: (id: number) => `/shifts/${id}`,
     SHIFT_CLOSE: (id: number) => `/shifts/${id}/close`,
+    SHIFT_PAYOUT: (id: number) => `/shifts/${id}/payout`,
+    SHIFT_DRAWER_MOVEMENTS: (id: number) => `/shifts/${id}/drawer-movements`,
 
     REPORTS_DAILY_SALES: '/reports/daily-sales',
     REPORTS_MONTHLY_SALES: '/reports/monthly-sales',
@@ -63,6 +96,7 @@ export const AppConstants = {
     REPORTS_LOW_STOCK: '/reports/low-stock',
 
     SETTINGS: '/settings',
+    SETTINGS_POS: '/settings/pos',
 
     RECEIPT: (orderId: number) => `/receipts/${orderId}`,
 
@@ -72,6 +106,18 @@ export const AppConstants = {
 
     USERS: '/users',
     USER_BY_ID: (id: number) => `/users/${id}`,
+    USERS_TOGGLE_ACTIVE: (id: number) => `/users/${id}/toggle-active`,
+    USERS_ME: '/users/me',
+    USERS_ME_CHANGE_PASSWORD: '/users/me/change-password',
+
+    PERMISSIONS: '/permissions',
+    PERMISSIONS_BY_ROLE: (role: string) => `/permissions/${role}`,
+    PERMISSIONS_ME: '/permissions/mine',
+
+    LOOKUPS_BY_TYPE: '/lookups/by-type',
+    LOOKUPS_ADMIN_BY_TYPE: '/lookups/admin/by-type',
+    LOOKUPS: '/lookups',
+    LOOKUP_BY_ID: (id: number) => `/lookups/${id}`,
 
     BRANCHES: '/branches',
     BRANCH_BY_ID: (id: number) => `/branches/${id}`,

@@ -1,7 +1,9 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Location, NgFor, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
+import { NavigationHistoryService } from '../../../core/services/navigation-history.service';
 
 export interface BreadcrumbItem {
   label: string;
@@ -27,9 +29,14 @@ export interface BreadcrumbItem {
       </div>
       <div class="page-actions">
         <ng-content></ng-content>
-        <button *ngIf="showBack" type="button" class="app-back-btn" (click)="onBack()">
+        <button
+          *ngIf="canGoBack"
+          type="button"
+          class="app-icon-btn page-back-btn"
+          [attr.aria-label]="'COMMON.BACK' | translate"
+          [title]="'COMMON.BACK' | translate"
+          (click)="onBack()">
           <span class="material-icons">arrow_back</span>
-          {{ 'COMMON.BACK' | translate }}
         </button>
       </div>
     </header>
@@ -39,20 +46,35 @@ export interface BreadcrumbItem {
       :host { display: block; }
       .page-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
       .app-breadcrumb { font-size: 0.78rem; color: var(--text-subtle); margin-bottom: 10px; }
+      .page-back-btn .material-icons { font-size: 20px; }
+      :host-context([dir='rtl']) .page-back-btn .material-icons { transform: scaleX(-1); }
     `,
   ],
 })
-export class PageHeaderComponent {
+export class PageHeaderComponent implements OnInit, OnDestroy {
   @Input() title = '';
   @Input() subtitle = '';
   @Input() breadcrumbs: BreadcrumbItem[] = [];
-  @Input() showBack = false;
-  @Output() backClick = new EventEmitter<void>();
+  canGoBack = false;
+  private navSub?: Subscription;
 
-  constructor(private readonly location: Location) {}
+  constructor(
+    private readonly location: Location,
+    private readonly navHistory: NavigationHistoryService
+  ) {}
+
+  ngOnInit(): void {
+    this.canGoBack = this.navHistory.canGoBack();
+    this.navSub = this.navHistory.canGoBack$.subscribe((value) => {
+      this.canGoBack = value;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.navSub?.unsubscribe();
+  }
 
   onBack(): void {
-    if (this.backClick.observed) this.backClick.emit();
-    else this.location.back();
+    this.navHistory.goBack(this.location);
   }
 }

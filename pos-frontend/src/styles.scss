@@ -1,4 +1,13 @@
 @import './styles/pos-tokens';
+@import './styles/platform-os-globals';
+@import './styles/page-ui';
+@import './styles/rms-estate-cards';
+@import './styles/pages/list-pages';
+@import './styles/admin.filters';
+@import './styles/pages/dashboard.page';
+@import './styles/rms-premium-shell';
+@import './styles/pos-theme';
+@import './styles/components/date-field';
 
 html[lang^='ar'], html[dir='rtl'] {
   font-variant-numeric: lining-nums tabular-nums;
@@ -7,11 +16,12 @@ html[lang^='ar'], html[dir='rtl'] {
 
 :root {
   --font-body: var(--font-ui);
-  --font-ar: 'IBM Plex Sans Arabic', 'Cairo', var(--font-ui);
+  --font-ar: 'Tajawal', 'Cairo', 'IBM Plex Sans Arabic', var(--font-ui);
   --text-main: var(--ink-900);
   --text-muted: var(--ink-500);
   --text-subtle: var(--ink-400);
-  --bg-page: var(--paper);
+  --bg-page: #f8fafc;
+  --paper: #f8fafc;
   --surface-raised: var(--surface);
   --card-border: var(--line);
   --card-bg: var(--surface);
@@ -40,7 +50,7 @@ html[dir='rtl'] body { font-family: var(--font-ar); }
 .mat-mdc-card { background: var(--surface) !important; border: 1px solid var(--card-border); border-radius: var(--r) !important; box-shadow: var(--shadow-card) !important; }
 .mat-mdc-unelevated-button:not(:disabled), .mat-mdc-raised-button:not(:disabled) { background: var(--navy-900) !important; color: var(--brass-100) !important; }
 
-.app-page { padding: 32px 40px 56px; min-height: calc(100vh - 64px); max-width: 1400px; margin-inline: auto; }
+.app-page { padding: var(--content-pad-block) var(--content-pad-inline) 48px; min-height: calc(100vh - 64px); max-width: var(--content-max-w); margin-inline: 0; }
 .app-page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; gap: 28px; flex-wrap: wrap; padding: 22px 24px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); box-shadow: var(--shadow-soft); }
 .app-page-title { font-family: var(--font-display); font-size: 42px; font-weight: 400; margin: 0; letter-spacing: -0.02em; }
 .app-page-subtitle { font-size: 14px; color: var(--text-muted); margin: 8px 0 0; }

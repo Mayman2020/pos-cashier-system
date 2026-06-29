@@ -1,6 +1,8 @@
 <aside class="sidebar" [class.collapsed]="collapsed">
   <div class="sidebar-brand">
-    <span class="brand-icon material-icons">point_of_sale</span>
+    <span class="brand-icon">
+      <span class="material-icons">point_of_sale</span>
+    </span>
     <span class="brand-text" *ngIf="!collapsed">{{ 'APP.TITLE' | translate }}</span>
   </div>
 
@@ -8,23 +10,31 @@
     <a
       *ngFor="let item of visibleItems"
       [routerLink]="item.route"
+      (click)="onMenuNav()"
       routerLinkActive="active"
       [matTooltip]="collapsed ? (item.labelKey | translate) : ''"
       matTooltipPosition="right"
       class="nav-item">
-      <span class="material-icons">{{ item.icon }}</span>
+      <span class="nav-icon-wrap" [attr.data-tone]="item.tone">
+        <span class="material-icons nav-icon">{{ item.icon }}</span>
+      </span>
       <span class="nav-label" *ngIf="!collapsed">{{ item.labelKey | translate }}</span>
     </a>
   </nav>
 
-  <div class="sidebar-footer" *ngIf="!collapsed">
-    <div class="user-chip">
+  <div class="sidebar-footer">
+    <div class="user-chip" *ngIf="!collapsed">
       <span class="user-name">{{ currentUserDisplayName }}</span>
       <span class="user-role">{{ roleKey | translate }}</span>
     </div>
-    <button type="button" class="logout-btn" (click)="logout()">
+    <button
+      type="button"
+      class="sidebar-logout"
+      (click)="logout()"
+      [matTooltip]="collapsed ? ('AUTH.LOGOUT' | translate) : ''"
+      matTooltipPosition="right">
       <span class="material-icons">logout</span>
-      {{ 'AUTH.LOGOUT' | translate }}
+      <span *ngIf="!collapsed">{{ 'AUTH.LOGOUT' | translate }}</span>
     </button>
   </div>
 </aside>

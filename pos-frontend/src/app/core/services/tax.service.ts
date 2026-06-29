@@ -19,4 +19,8 @@ export class TaxService {
   update(id: number, body: TaxRequest): Observable<Tax> {
     return this.api.put<Tax>(AppConstants.API.TAX_BY_ID(id), body);
   }
+
+  delete(id: number): Observable<void> {
+    return this.api.delete<void>(AppConstants.API.TAX_BY_ID(id));
+  }
 }

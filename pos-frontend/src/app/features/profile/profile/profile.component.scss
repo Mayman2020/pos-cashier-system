@@ -1,0 +1,18 @@
+.profile-info p {
+  margin: 0 0 8px;
+}
+
+.profile-form {
+  display: grid;
+  gap: 12px;
+  max-width: 460px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.profile-card.highlight {
+  outline: 2px solid var(--brass-400, #d4a853);
+}

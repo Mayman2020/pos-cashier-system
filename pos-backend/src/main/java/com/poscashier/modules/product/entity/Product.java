@@ -58,6 +58,9 @@ public class Product extends AuditableEntity {
     @Column(name = "tax_rate", precision = 5, scale = 2)
     private BigDecimal taxRate = BigDecimal.ZERO;
 
+    @Column(name = "tax_id")
+    private Long taxId;
+
     @Builder.Default
     @Column(name = "track_stock")
     private boolean trackStock = true;

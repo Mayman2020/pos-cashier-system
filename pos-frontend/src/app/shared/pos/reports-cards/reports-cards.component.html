@@ -1,0 +1,9 @@
+<div class="pos-report-cards" *ngIf="cards.length">
+  <article class="report-card" *ngFor="let card of cards" [style.--accent]="card.accent || '#4f46e5'">
+    <span class="material-icons icon">{{ card.icon }}</span>
+    <div class="body">
+      <span class="label">{{ card.labelKey | translate }}</span>
+      <strong class="value">{{ card.value }}</strong>
+    </div>
+  </article>
+</div>

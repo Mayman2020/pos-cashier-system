@@ -1,69 +1,98 @@
 <div class="app-page">
-  <app-page-header [title]="'ORDERS.TITLE' | translate" [subtitle]="'ORDERS.SUBTITLE' | translate"></app-page-header>
+  <app-page-header [title]="'ORDERS.TITLE' | translate" [subtitle]="'ORDERS.SUBTITLE' | translate">
+    <button type="button" class="app-icon-btn" (click)="pageIndex=0; load()" [title]="'COMMON.REFRESH' | translate">
+      <span class="material-icons">refresh</span>
+    </button>
+  </app-page-header>
 
-  <div class="filters app-card">
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
-      <mat-select [(ngModel)]="statusFilter" (selectionChange)="pageIndex=0; load()">
-        <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
-        <mat-option value="PENDING">{{ 'STATUS.PENDING' | translate }}</mat-option>
-        <mat-option value="HELD">{{ 'STATUS.HELD' | translate }}</mat-option>
-        <mat-option value="PAID">{{ 'STATUS.PAID' | translate }}</mat-option>
-        <mat-option value="CANCELLED">{{ 'STATUS.CANCELLED' | translate }}</mat-option>
-        <mat-option value="REFUNDED">{{ 'STATUS.REFUNDED' | translate }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>{{ 'COMMON.SEARCH' | translate }}</mat-label>
-      <input matInput [(ngModel)]="search" (keyup.enter)="pageIndex=0; load()" />
-    </mat-form-field>
-    <button mat-stroked-button type="button" (click)="pageIndex=0; load()">{{ 'COMMON.REFRESH' | translate }}</button>
-  </div>
+  <div class="app-list-surface">
+    <section class="list-stats">
+      <article class="stat-pill stat-pill--purple">
+        <span class="stat-label">{{ 'COMMON.ALL' | translate }}</span>
+        <strong>{{ total }}</strong>
+      </article>
+      <article class="stat-pill stat-pill--gold">
+        <span class="stat-label">{{ 'STATUS.PAID' | translate }}</span>
+        <strong>{{ paidCount }}</strong>
+      </article>
+      <article class="stat-pill stat-pill--orange">
+        <span class="stat-label">{{ 'STATUS.PENDING' | translate }}</span>
+        <strong>{{ pendingCount }}</strong>
+      </article>
+    </section>
 
-  <div class="app-card">
-    <div class="app-table-wrap" *ngIf="orders.length; else empty">
-      <table class="app-data-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>{{ 'ORDERS.NUMBER' | translate }}</th>
-            <th>{{ 'ORDERS.ORDER_TYPE' | translate }}</th>
-            <th>{{ 'COMMON.STATUS' | translate }}</th>
-            <th>{{ 'ORDERS.KITCHEN_STATUS' | translate }}</th>
-            <th>{{ 'POS.TOTAL' | translate }}</th>
-            <th>{{ 'COMMON.DATE' | translate }}</th>
-            <th>{{ 'COMMON.ACTIONS' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let o of orders">
-            <td>{{ o.id }}</td>
-            <td>{{ o.orderNumber }}</td>
-            <td>{{ orderTypeLabel(o.orderType) }}</td>
-            <td><span class="status-badge" [attr.data-status]="o.status">{{ ('STATUS.' + o.status) | translate }}</span></td>
-            <td>
-              <span *ngIf="o.kitchenStatus" class="status-badge" [attr.data-status]="o.kitchenStatus">{{ ('STATUS.' + o.kitchenStatus) | translate }}</span>
-              <span *ngIf="!o.kitchenStatus">{{ 'COMMON.NONE' | translate }}</span>
-            </td>
-            <td>{{ fmtMoney(Number(o.totalAmount)) }}</td>
-            <td>{{ o.createdAt | date:'short' }}</td>
-            <td class="actions-cell">
-              <button mat-stroked-button type="button" *ngIf="o.status === 'PAID' || o.status === 'REFUNDED'" (click)="viewReceipt(o)">
-                {{ 'POS.RECEIPT' | translate }}
-              </button>
-              <button mat-stroked-button type="button" *ngIf="o.status === 'HELD' || o.status === 'PENDING'" (click)="cancelOrder(o)">
-                {{ 'POS.CANCEL' | translate }}
-              </button>
-              <button mat-stroked-button type="button" color="warn" *ngIf="canRefund && o.status === 'PAID'" (click)="refundOrder(o)">
-                {{ 'ORDERS.REFUND' | translate }}
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <section class="estate-card directory-table-card">
+      <div class="estate-table-toolbar directory-toolbar">
+        <div class="directory-toolbar-top table-list-toolbar">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
+            <mat-select [(ngModel)]="statusFilter" (selectionChange)="pageIndex=0; load()">
+              <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
+              <mat-option value="PENDING">{{ 'STATUS.PENDING' | translate }}</mat-option>
+              <mat-option value="HELD">{{ 'STATUS.HELD' | translate }}</mat-option>
+              <mat-option value="PAID">{{ 'STATUS.PAID' | translate }}</mat-option>
+              <mat-option value="CANCELLED">{{ 'STATUS.CANCELLED' | translate }}</mat-option>
+              <mat-option value="REFUNDED">{{ 'STATUS.REFUNDED' | translate }}</mat-option>
+              <mat-option value="PARTIALLY_REFUNDED">{{ 'STATUS.PARTIALLY_REFUNDED' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <label class="estate-search-inline">
+            <span class="material-icons">search</span>
+            <input [(ngModel)]="search" (keyup.enter)="pageIndex=0; load()" [placeholder]="'COMMON.SEARCH' | translate" />
+          </label>
+          <button type="button" class="app-icon-btn" (click)="pageIndex=0; load()" [title]="'COMMON.SEARCH' | translate">
+            <span class="material-icons">search</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="app-table-wrap" *ngIf="orders.length; else empty">
+        <table class="app-data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>{{ 'ORDERS.NUMBER' | translate }}</th>
+              <th>{{ 'ORDERS.ORDER_TYPE' | translate }}</th>
+              <th>{{ 'COMMON.STATUS' | translate }}</th>
+              <th>{{ 'ORDERS.KITCHEN_STATUS' | translate }}</th>
+              <th>{{ 'POS.TOTAL' | translate }}</th>
+              <th>{{ 'COMMON.DATE' | translate }}</th>
+              <th>{{ 'COMMON.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let o of orders">
+              <td>{{ o.id }}</td>
+              <td>{{ o.orderNumber }}</td>
+              <td>{{ orderTypeLabel(o.orderType) }}</td>
+              <td><span class="status-badge" [attr.data-status]="o.status">{{ ('STATUS.' + o.status) | translate }}</span></td>
+              <td>
+                <span *ngIf="o.kitchenStatus" class="status-badge" [attr.data-status]="o.kitchenStatus">{{ ('STATUS.' + o.kitchenStatus) | translate }}</span>
+                <span *ngIf="!o.kitchenStatus">{{ 'COMMON.NONE' | translate }}</span>
+              </td>
+              <td>{{ fmtMoney(Number(o.totalAmount)) }}</td>
+              <td>{{ o.createdAt | rmsDate:'datetime' }}</td>
+              <td class="actions-cell">
+                <button mat-stroked-button type="button" (click)="viewDetail(o)">{{ 'ORDERS.DETAIL' | translate }}</button>
+                <button mat-stroked-button type="button" *ngIf="o.status === 'PAID' || o.status === 'REFUNDED'" (click)="viewReceipt(o)">
+                  {{ 'POS.RECEIPT' | translate }}
+                </button>
+                <button mat-stroked-button type="button" *ngIf="o.status === 'HELD'" (click)="resumeOrder(o)">{{ 'ORDERS.RESUME' | translate }}</button>
+                <button mat-stroked-button type="button" *ngIf="o.status === 'HELD' || o.status === 'PENDING'" (click)="cancelOrder(o)">
+                  {{ 'POS.CANCEL' | translate }}
+                </button>
+                <button mat-stroked-button type="button" color="warn" *ngIf="canRefund && isRefundable(o.status)" (click)="refundOrder(o)">
+                  {{ 'ORDERS.REFUND' | translate }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <app-table-pager [length]="total" [pageSize]="pageSize" [pageIndex]="pageIndex" (pageIndexChange)="pageIndex=$event; load()"></app-table-pager>
-    </div>
-    <ng-template #empty><app-empty-state *ngIf="!loading"></app-empty-state></ng-template>
+      <ng-template #empty><app-empty-state *ngIf="!loading"></app-empty-state></ng-template>
+    </section>
   </div>
+
   <app-loading-spinner *ngIf="loading" [contained]="true"></app-loading-spinner>
 </div>

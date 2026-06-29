@@ -1,0 +1,14 @@
+<button type="button" class="pos-product-card" [class.out-of-stock]="outOfStock" (click)="add.emit()">
+  <div class="img-wrap">
+    <img [src]="imageSrc" [alt]="product.name" loading="lazy" />
+    <span class="stock-tag" *ngIf="stock !== null && product.trackStock !== false">{{ stock }}</span>
+    <button type="button" class="add-fab" (click)="onAdd($event)" [disabled]="outOfStock" aria-label="add">
+      <span class="material-icons">add</span>
+    </button>
+  </div>
+  <div class="info">
+    <h3 class="name">{{ product.name }}</h3>
+    <p class="sku" *ngIf="product.barcode || product.sku">{{ 'PRODUCTS.SKU' | translate }}: {{ product.barcode || product.sku }}</p>
+    <p class="price">{{ priceLabel }}</p>
+  </div>
+</button>

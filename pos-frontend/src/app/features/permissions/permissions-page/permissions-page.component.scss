@@ -1,0 +1,56 @@
+.permissions-card {
+  overflow: hidden;
+}
+
+.permissions-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.role-field-wrap {
+  padding: 14px 20px 0;
+}
+
+.role-field {
+  width: min(300px, 100%);
+}
+
+.perm-grid {
+  padding: 16px 20px 20px;
+  overflow-x: auto;
+}
+
+.perm-header,
+.perm-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) repeat(4, 92px);
+  align-items: center;
+  gap: 8px;
+}
+
+.perm-header {
+  padding: 10px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--line-2);
+}
+
+.perm-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line-2);
+}
+
+.module-name {
+  font-weight: 600;
+}
+
+.empty-state {
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+}

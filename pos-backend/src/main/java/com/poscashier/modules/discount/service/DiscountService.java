@@ -61,4 +61,12 @@ public class DiscountService {
         return discountRepository.findById(id)
                 .orElseThrow(() -> AppException.notFound("Discount not found"));
     }
+
+    @Transactional
+    public void delete(Long id) {
+        Discount discount = findEntity(id);
+        discount.setActive(false);
+        discount.setUpdatedAt(LocalDateTime.now());
+        discountRepository.save(discount);
+    }
 }

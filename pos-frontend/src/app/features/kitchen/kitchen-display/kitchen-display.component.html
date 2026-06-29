@@ -16,7 +16,7 @@
           <span>{{ orderTypeLabel(order.orderType) }}</span>
         </div>
         <div class="kds-meta" *ngIf="order.tableId">{{ 'POS.TABLE' | translate }}: {{ order.tableId }}</div>
-        <div class="kds-meta">{{ order.createdAt | date:'short' }}</div>
+        <div class="kds-meta">{{ order.createdAt | rmsDate:'datetime' }}</div>
         <ul class="kds-items">
           <li *ngFor="let item of order.items">
             {{ item.productName }} × {{ item.quantity }}

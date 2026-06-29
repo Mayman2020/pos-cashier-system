@@ -1,4 +1,4 @@
-export type OrderStatus = 'DRAFT' | 'HELD' | 'PENDING' | 'PREPARING' | 'READY' | 'SERVED' | 'PAID' | 'CANCELLED' | 'REFUNDED';
+export type OrderStatus = 'DRAFT' | 'HELD' | 'PENDING' | 'PREPARING' | 'READY' | 'SERVED' | 'PAID' | 'CANCELLED' | 'REFUNDED' | 'PARTIALLY_REFUNDED';
 export type OrderType = 'RETAIL' | 'DINE_IN' | 'TAKEAWAY' | 'DELIVERY';
 export type PaymentMethod = 'CASH' | 'CARD' | 'MIXED' | 'OTHER';
 
@@ -17,6 +17,19 @@ export interface OrderItem {
   notes?: string;
   modifiersJson?: string;
   kitchenStatus?: KitchenStatus;
+}
+
+export interface OrderNote {
+  id?: number;
+  itemId?: number;
+  note: string;
+  createdAt?: string;
+  createdBy?: string;
+}
+
+export interface OrderNoteRequest {
+  itemId?: number;
+  note: string;
 }
 
 export interface PosOrder {
@@ -41,6 +54,7 @@ export interface PosOrder {
   createdAt?: string;
   kitchenStatus?: KitchenStatus;
   items?: OrderItem[];
+  orderNotes?: OrderNote[];
 }
 
 export interface OrderItemRequest {
@@ -58,7 +72,10 @@ export interface CreateOrderRequest {
   tableId?: number;
   orderType?: OrderType;
   discountAmount?: number;
+  discountCode?: string;
+  loyaltyPointsRedeemed?: number;
   notes?: string;
+  orderNotes?: OrderNoteRequest[];
   items: OrderItemRequest[];
 }
 
@@ -67,8 +84,22 @@ export interface UpdateOrderRequest {
   tableId?: number;
   orderType?: OrderType;
   discountAmount?: number;
+  discountCode?: string;
+  loyaltyPointsRedeemed?: number;
   notes?: string;
+  orderNotes?: OrderNoteRequest[];
   items: OrderItemRequest[];
+}
+
+export interface RefundItemRequest {
+  orderItemId: number;
+  quantity: number;
+}
+
+export interface RefundOrderRequest {
+  reason?: string;
+  refundMethod?: PaymentMethod;
+  items?: RefundItemRequest[];
 }
 
 export interface PayOrderRequest {

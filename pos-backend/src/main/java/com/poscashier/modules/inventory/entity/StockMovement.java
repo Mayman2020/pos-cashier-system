@@ -58,4 +58,13 @@ public class StockMovement {
 
     @Column(name = "created_by", length = 100)
     private String createdBy;
+
+    @Column(name = "supplier_id")
+    private Long supplierId;
+
+    @Column(name = "invoice_no", length = 100)
+    private String invoiceNo;
+
+    @Column(name = "invoice_date")
+    private java.time.LocalDate invoiceDate;
 }
